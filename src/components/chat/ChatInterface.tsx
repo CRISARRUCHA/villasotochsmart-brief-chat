@@ -28,7 +28,11 @@ const INITIAL_MESSAGE: DisplayMessage = {
 const PHASE1_TOPICS = 10;
 const PHASE2_TOPICS = 11;
 
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  initialMessage?: string;
+}
+
+export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<DisplayMessage[]>([INITIAL_MESSAGE]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_MESSAGE.content },
