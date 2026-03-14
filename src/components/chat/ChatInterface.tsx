@@ -6,7 +6,7 @@ import { MessageBubble } from "./MessageBubble";
 import { TypingIndicator } from "./TypingIndicator";
 import { SuggestionChips } from "./SuggestionChips";
 import { BriefCard } from "./BriefCard";
-import { FileUploadButton, type UploadedFile } from "./FileUploadButton";
+import { FileUploadButton, PendingFilesPreview, type UploadedFile } from "./FileUploadButton";
 import { FileAttachments } from "./FileAttachments";
 import { CompletionScreen } from "./CompletionScreen";
 import { streamChat, parseAIResponse, type Message, type Phase } from "@/lib/chat-stream";
