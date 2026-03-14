@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import logoIcon from "@/assets/logo-icon.png";
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
@@ -17,8 +18,8 @@ export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
       className={`flex items-start gap-3 ${isAssistant ? "mr-8 sm:mr-12" : "ml-8 sm:ml-12 justify-end"}`}
     >
       {isAssistant && (
-        <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20">
-          <span className="text-[10px] font-bold text-primary">iW</span>
+        <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20 p-1">
+          <img src={logoIcon} alt="iW" className="w-full h-full object-contain" />
         </div>
       )}
       <div

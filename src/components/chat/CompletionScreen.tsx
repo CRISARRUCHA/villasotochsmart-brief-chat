@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { PartyPopper, Rocket } from "lucide-react";
+import { Rocket } from "lucide-react";
+import logoHorizontal from "@/assets/logo-horizontal.png";
 
 export const CompletionScreen = () => {
   useEffect(() => {
@@ -49,9 +50,9 @@ export const CompletionScreen = () => {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
-        className="w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center mb-6 ring-2 ring-primary/20"
+        className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center mb-6 ring-2 ring-primary/20 p-4"
       >
-        <PartyPopper size={36} className="text-primary" />
+        <img src={logoHorizontal} alt="Im-Pulsa Web" className="w-full h-full object-contain" />
       </motion.div>
 
       <motion.h2
