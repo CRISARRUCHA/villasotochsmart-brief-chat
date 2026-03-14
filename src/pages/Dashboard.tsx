@@ -14,6 +14,7 @@ interface Brief {
   chat_history: Array<{ role: string; content: string }>;
   phase: string;
   created_at: string;
+  updated_at: string;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -86,7 +87,7 @@ const Dashboard = () => {
     const { data, error } = await supabase
       .from("briefs")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
     if (error) {
       toast.error("Error al cargar briefs");
     } else {
@@ -172,7 +173,7 @@ const Dashboard = () => {
                         <p className="text-sm font-medium text-foreground truncate">
                           {getDisplayName(brief)}
                         </p>
-                        <p className="text-xs text-muted-foreground">{formatDate(brief.created_at)}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(brief.updated_at || brief.created_at)}</p>
                       </div>
                     </div>
                     {isExpanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}

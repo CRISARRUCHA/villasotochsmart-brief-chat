@@ -43,6 +43,7 @@ export const ChatInterface = () => {
   const [currentSuggestions, setCurrentSuggestions] = useState<string[] | undefined>(undefined);
   const [briefId, setBriefId] = useState<string | null>(null);
   const briefIdRef = useRef<string | null>(null);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -88,41 +89,46 @@ export const ChatInterface = () => {
     return firstUserMsg.content.substring(0, 100).trim() || null;
   }, []);
 
-  const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
-    try {
-      const clientName = data.nombre_negocio || data.nombre_contacto || extractNameFromChat(chatHistory);
-      const currentBriefId = briefIdRef.current;
-      if (currentBriefId) {
-        const { error } = await supabase.from("briefs").update({
-          client_name: clientName,
-          brief_data: data,
-          full_data: fullData,
-          phase: phaseVal,
-          chat_history: chatHistory as any,
-          updated_at: new Date().toISOString(),
-        }).eq("id", currentBriefId);
-        if (error) console.error("Error updating brief:", error);
-      } else {
-        const newId = crypto.randomUUID();
-        const { error } = await supabase.from("briefs").insert({
-          id: newId,
-          client_name: clientName,
-          brief_data: data,
-          full_data: fullData,
-          phase: phaseVal,
-          chat_history: chatHistory as any,
-        });
-        if (error) {
-          console.error("Error saving brief:", error);
-          toast.error("Error al guardar el brief");
-        } else {
-          briefIdRef.current = newId;
-          setBriefId(newId);
+  const saveBrief = useCallback((data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
+    const payload = { data, fullData, phaseVal, chatHistory };
+
+    saveQueueRef.current = saveQueueRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        try {
+          const clientName =
+            payload.data.nombre_negocio ||
+            payload.data.nombre_contacto ||
+            extractNameFromChat(payload.chatHistory);
+
+          const idToUse = briefIdRef.current ?? crypto.randomUUID();
+          const { error } = await supabase.from("briefs").upsert(
+            {
+              id: idToUse,
+              client_name: clientName,
+              brief_data: payload.data,
+              full_data: payload.fullData,
+              phase: payload.phaseVal,
+              chat_history: payload.chatHistory as any,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "id" }
+          );
+
+          if (error) {
+            console.error("Error saving brief:", error);
+            toast.error("Error al guardar el brief");
+            return;
+          }
+
+          if (!briefIdRef.current) {
+            briefIdRef.current = idToUse;
+            setBriefId(idToUse);
+          }
+        } catch (err) {
+          console.error("Error saving brief:", err);
         }
-      }
-    } catch (err) {
-      console.error("Error saving brief:", err);
-    }
+      });
   }, [extractNameFromChat]);
 
   const sendMessage = async (text: string) => {
@@ -181,7 +187,7 @@ export const ChatInterface = () => {
             setPhase("done");
             setProgress(100);
             const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
-            saveBrief(briefData, action.data, "done", allMessages);
+            saveBrief(merged, action.data, "done", allMessages);
           } else {
             setProgress(estimateProgress(newApiMessages.length + 1, phase));
             // Auto-save progress periodically
