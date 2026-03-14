@@ -85,7 +85,7 @@ export const ChatInterface = () => {
     try {
       const clientName = data.nombre_negocio || null;
       if (briefId) {
-        await supabase.from("briefs").update({
+        const { error } = await supabase.from("briefs").update({
           client_name: clientName,
           brief_data: data,
           full_data: fullData,
@@ -93,18 +93,23 @@ export const ChatInterface = () => {
           chat_history: chatHistory as any,
           updated_at: new Date().toISOString(),
         }).eq("id", briefId);
+        if (error) console.error("Error updating brief:", error);
       } else {
-        const { data: inserted, error } = await supabase.from("briefs").insert({
+        // Generate ID client-side to avoid needing SELECT permission after INSERT
+        const newId = crypto.randomUUID();
+        const { error } = await supabase.from("briefs").insert({
+          id: newId,
           client_name: clientName,
           brief_data: data,
           full_data: fullData,
           phase: phaseVal,
           chat_history: chatHistory as any,
-        }).select("id").single();
+        });
         if (error) {
           console.error("Error saving brief:", error);
-        } else if (inserted) {
-          setBriefId(inserted.id);
+          toast.error("Error al guardar el brief");
+        } else {
+          setBriefId(newId);
         }
       }
     } catch (err) {
