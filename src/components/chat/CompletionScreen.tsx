@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Rocket } from "lucide-react";
-import logoHorizontal from "@/assets/logo-horizontal.png";
+import logoIcon from "@/assets/logo-icon.png";
 
 export const CompletionScreen = () => {
   useEffect(() => {
