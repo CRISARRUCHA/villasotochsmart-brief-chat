@@ -39,6 +39,7 @@ export const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [briefData, setBriefData] = useState<Record<string, any>>({});
   const [currentSuggestions, setCurrentSuggestions] = useState<string[] | undefined>(INITIAL_MESSAGE.suggestions);
+  const [briefId, setBriefId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
