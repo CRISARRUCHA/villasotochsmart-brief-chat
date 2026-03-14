@@ -78,7 +78,7 @@ const Dashboard = () => {
     if (error) {
       toast.error("Error al cargar briefs");
     } else {
-      setBriefs((data as Brief[]) || []);
+      setBriefs((data as unknown as Brief[]) || []);
     }
     setLoading(false);
   };
