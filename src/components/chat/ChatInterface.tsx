@@ -7,6 +7,7 @@ import { TypingIndicator } from "./TypingIndicator";
 import { SuggestionChips } from "./SuggestionChips";
 import { BriefCard } from "./BriefCard";
 import { streamChat, parseAIResponse, type Message, type Phase } from "@/lib/chat-stream";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface DisplayMessage {
