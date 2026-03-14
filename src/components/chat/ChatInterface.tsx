@@ -102,24 +102,38 @@ export const ChatInterface = () => {
             extractNameFromChat(payload.chatHistory);
 
           const idToUse = briefIdRef.current ?? crypto.randomUUID();
-          const { error } = await supabase.from("briefs").upsert(
-            {
-              id: idToUse,
+          
+          if (briefIdRef.current) {
+            // Update existing
+            const { error } = await supabase.from("briefs").update({
               client_name: clientName,
               brief_data: payload.data,
               full_data: payload.fullData,
               phase: payload.phaseVal,
               chat_history: payload.chatHistory as any,
               updated_at: new Date().toISOString(),
-            },
-            { onConflict: "id" }
-          );
-
-          if (error) {
-            console.error("Error saving brief:", error);
-            toast.error("Error al guardar el brief");
-            return;
+            }).eq("id", briefIdRef.current);
+            if (error) {
+              console.error("Error updating brief:", error);
+              return;
+            }
+          } else {
+            // Insert new
+            const { error } = await supabase.from("briefs").insert({
+              id: idToUse,
+              client_name: clientName,
+              brief_data: payload.data,
+              full_data: payload.fullData,
+              phase: payload.phaseVal,
+              chat_history: payload.chatHistory as any,
+            });
+            if (error) {
+              console.error("Error inserting brief:", error);
+              toast.error("Error al guardar el brief");
+              return;
+            }
           }
+
 
           if (!briefIdRef.current) {
             briefIdRef.current = idToUse;
