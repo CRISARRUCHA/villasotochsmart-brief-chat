@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Trash2, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 interface Brief {
   id: string;
@@ -17,27 +18,28 @@ interface Brief {
 
 const FIELD_LABELS: Record<string, string> = {
   nombre_negocio: "Nombre del Negocio",
+  nombre_contacto: "Nombre del Contacto",
   giro_actividad: "Giro / Actividad",
   objetivo_sitio: "Objetivo del Sitio",
   publico_objetivo: "Público Objetivo",
+  competidores_urls: "Competidores / URLs",
   competidores_referencias: "Competidores / Referencias",
+  sitios_que_les_gustan: "Sitios que les Gustan",
+  tono_personalidad: "Tono y Personalidad",
   diferenciador: "Diferenciador",
   tono_feel: "Tono y Feel",
   identidad_visual: "Identidad Visual",
   secciones_necesarias: "Secciones Necesarias",
-  plazo: "Plazo",
-  dominio_hosting: "Dominio y Hosting",
-  plataforma_preferida: "Plataforma Preferida",
-  funcionalidades_especificas: "Funcionalidades",
-  idiomas: "Idiomas",
-  estado_contenido: "Estado del Contenido",
-  seo: "SEO",
-  analiticas: "Analíticas",
+  contenido_disponible: "Contenido Disponible",
+  llamadas_a_accion: "Llamadas a la Acción",
   redes_sociales: "Redes Sociales",
-  presupuesto: "Presupuesto",
-  mantenimiento: "Mantenimiento",
+  referencias_visuales_adicionales: "Referencias Visuales",
+  funcionalidades_especiales: "Funcionalidades Especiales",
+  idiomas: "Idiomas",
   extras: "Extras",
 };
+
+const HIDDEN_FIELDS = ["_partial"];
 
 const phaseBadge: Record<string, { label: string; className: string }> = {
   brief: { label: "Brief", className: "bg-primary/10 text-primary" },
@@ -45,11 +47,21 @@ const phaseBadge: Record<string, { label: string; className: string }> = {
   done: { label: "Completo", className: "bg-phase-done/10 text-phase-done" },
 };
 
+/** Strip JSON artifacts from AI messages for display */
+function cleanMessageContent(content: string): string {
+  return content
+    .replace(/\{"suggestions".*$/s, "")
+    .replace(/\{"action".*$/s, "")
+    .trim();
+}
+
+type TabView = "summary" | "chat";
+
 const Dashboard = () => {
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [viewChat, setViewChat] = useState<string | null>(null);
+  const [tabView, setTabView] = useState<Record<string, TabView>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,6 +112,18 @@ const Dashboard = () => {
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
+  const getTab = (id: string): TabView => tabView[id] || "summary";
+  const setTab = (id: string, tab: TabView) => setTabView(prev => ({ ...prev, [id]: tab }));
+
+  const getDisplayName = (brief: Brief): string => {
+    const name = brief.client_name || (brief.brief_data as any)?.nombre_negocio;
+    const contact = (brief.brief_data as any)?.nombre_contacto;
+    if (name && contact) return `${name} — ${contact}`;
+    if (name) return name;
+    if (contact) return contact;
+    return "Sin nombre";
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 sm:px-6 py-4">
@@ -129,8 +153,8 @@ const Dashboard = () => {
             {briefs.map(brief => {
               const badge = phaseBadge[brief.phase] || phaseBadge.brief;
               const isExpanded = expandedId === brief.id;
-              const showingChat = viewChat === brief.id;
-              const data = { ...brief.brief_data, ...(brief.full_data || {}) };
+              const currentTab = getTab(brief.id);
+              const allData = { ...brief.brief_data, ...(brief.full_data || {}) };
 
               return (
                 <div key={brief.id} className="border border-border rounded-2xl bg-background overflow-hidden">
@@ -146,7 +170,7 @@ const Dashboard = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">
-                          {brief.client_name || (brief.brief_data as any)?.nombre_negocio || "Sin nombre"}
+                          {getDisplayName(brief)}
                         </p>
                         <p className="text-xs text-muted-foreground">{formatDate(brief.created_at)}</p>
                       </div>
@@ -164,10 +188,28 @@ const Dashboard = () => {
                         className="overflow-hidden"
                       >
                         <div className="px-4 sm:px-5 pb-5 border-t border-border pt-4">
-                          {!showingChat ? (
+                          {/* Tabs */}
+                          <div className="flex items-center gap-1 mb-4 bg-secondary/50 rounded-lg p-1 w-fit">
+                            <button
+                              onClick={() => setTab(brief.id, "summary")}
+                              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${currentTab === "summary" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                            >
+                              <FileText size={12} /> Resumen
+                            </button>
+                            <button
+                              onClick={() => setTab(brief.id, "chat")}
+                              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${currentTab === "chat" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                            >
+                              <MessageSquare size={12} /> Conversación
+                            </button>
+                          </div>
+
+                          {currentTab === "summary" ? (
                             <>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                {Object.entries(data).map(([key, value]) => (
+                                {Object.entries(allData)
+                                  .filter(([key]) => !HIDDEN_FIELDS.includes(key))
+                                  .map(([key, value]) => (
                                   <div key={key}>
                                     <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5 font-mono">
                                       {FIELD_LABELS[key] || key}
@@ -178,40 +220,41 @@ const Dashboard = () => {
                                   </div>
                                 ))}
                               </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => setViewChat(brief.id)}
-                                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  <Eye size={12} /> Ver conversación
-                                </button>
-                                <button
-                                  onClick={() => deleteBrief(brief.id)}
-                                  className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors ml-auto"
-                                >
-                                  <Trash2 size={12} /> Eliminar
-                                </button>
-                              </div>
+                              {Object.keys(allData).filter(k => !HIDDEN_FIELDS.includes(k)).length === 0 && (
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  Aún no hay datos de brief — revisa la conversación.
+                                </p>
+                              )}
                             </>
                           ) : (
-                            <>
-                              <div className="space-y-3 max-h-96 overflow-y-auto mb-4">
-                                {(brief.chat_history as any[]).map((msg, i) => (
+                            <div className="space-y-3 max-h-[600px] overflow-y-auto mb-4 pr-1">
+                              {(brief.chat_history as any[])?.map((msg, i) => {
+                                const cleaned = cleanMessageContent(msg.content || "");
+                                if (!cleaned) return null;
+                                return (
                                   <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
-                                      {msg.content?.substring(0, 500)}{msg.content?.length > 500 ? "..." : ""}
+                                    <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${msg.role === "user" ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-secondary text-foreground rounded-tl-none"}`}>
+                                      <div className="prose prose-sm prose-invert max-w-none prose-p:my-1">
+                                        <ReactMarkdown>{cleaned}</ReactMarkdown>
+                                      </div>
                                     </div>
                                   </div>
-                                ))}
-                              </div>
-                              <button
-                                onClick={() => setViewChat(null)}
-                                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                ← Volver al brief
-                              </button>
-                            </>
+                                );
+                              })}
+                              {(!brief.chat_history || (brief.chat_history as any[]).length === 0) && (
+                                <p className="text-sm text-muted-foreground text-center py-4">No hay conversación registrada.</p>
+                              )}
+                            </div>
                           )}
+
+                          <div className="flex items-center justify-end">
+                            <button
+                              onClick={() => deleteBrief(brief.id)}
+                              className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+                            >
+                              <Trash2 size={12} /> Eliminar
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
                     )}

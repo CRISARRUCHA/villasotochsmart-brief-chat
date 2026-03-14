@@ -24,7 +24,7 @@ interface DisplayMessage {
 
 const INITIAL_MESSAGE: DisplayMessage = {
   role: "assistant",
-  content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender qué necesitas para tu nuevo sitio web. Nosotros nos encargamos de toda la parte técnica — tú solo cuéntame sobre tu negocio y lo que te gustaría comunicar.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cuál es el nombre de tu negocio o proyecto?**",
+  content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender qué necesitas para tu nuevo sitio web. Nosotros nos encargamos de toda la parte técnica — tú solo cuéntame sobre tu negocio y lo que te gustaría comunicar.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cómo te llamas y cuál es el nombre de tu negocio o proyecto?**",
 };
 
 const PHASE1_TOPICS = 8;
@@ -82,7 +82,7 @@ export const ChatInterface = () => {
 
   const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
     try {
-      const clientName = data.nombre_negocio || null;
+      const clientName = data.nombre_negocio || data.nombre_contacto || null;
       if (briefId) {
         const { error } = await supabase.from("briefs").update({
           client_name: clientName,
