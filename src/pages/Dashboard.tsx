@@ -87,7 +87,7 @@ const Dashboard = () => {
     const { data, error } = await supabase
       .from("briefs")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
     if (error) {
       toast.error("Error al cargar briefs");
     } else {
