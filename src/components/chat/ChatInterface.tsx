@@ -270,10 +270,16 @@ export const ChatInterface = () => {
                 maxRows={4}
                 className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
               />
-              <div className="absolute bottom-3 right-3">
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                <FileUploadButton
+                  briefId={briefId}
+                  onFilesUploaded={(files) => setPendingFiles(prev => [...prev, ...files])}
+                  pendingFiles={pendingFiles}
+                  onRemoveFile={(idx) => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                />
                 <button
                   onClick={() => sendMessage(input)}
-                  disabled={!input.trim() || isLoading}
+                  disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary hover:brightness-110 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-[0_0_20px_rgba(20,136,252,0.3)]"
                 >
                   <span className="hidden sm:inline">Enviar</span>
