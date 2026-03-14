@@ -187,7 +187,7 @@ export const ChatInterface = () => {
             setPhase("done");
             setProgress(100);
             const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
-            saveBrief(briefData, action.data, "done", allMessages);
+            saveBrief(merged, action.data, "done", allMessages);
           } else {
             setProgress(estimateProgress(newApiMessages.length + 1, phase));
             // Auto-save progress periodically

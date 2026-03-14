@@ -173,7 +173,7 @@ const Dashboard = () => {
                         <p className="text-sm font-medium text-foreground truncate">
                           {getDisplayName(brief)}
                         </p>
-                        <p className="text-xs text-muted-foreground">{formatDate(brief.created_at)}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(brief.updated_at || brief.created_at)}</p>
                       </div>
                     </div>
                     {isExpanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
