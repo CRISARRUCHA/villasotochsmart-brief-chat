@@ -289,7 +289,7 @@ const Dashboard = () => {
                                 </div>
                               )}
                             </>
-                          ) : (
+                          ) : currentTab === "chat" ? (
                             <div className="space-y-3 max-h-[600px] overflow-y-auto mb-4 pr-1">
                               {(brief.chat_history as any[])?.map((msg, i) => {
                                 const cleaned = cleanMessageContent(msg.content || "");
@@ -306,6 +306,57 @@ const Dashboard = () => {
                               })}
                               {(!brief.chat_history || (brief.chat_history as any[]).length === 0) && (
                                 <p className="text-sm text-muted-foreground text-center py-4">No hay conversación registrada.</p>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="mb-4">
+                              {loadingFiles[brief.id] ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">Cargando archivos...</p>
+                              ) : !briefFiles[brief.id] || briefFiles[brief.id].length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">No hay archivos adjuntos para este brief.</p>
+                              ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                  {briefFiles[brief.id].map((file, i) => {
+                                    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+                                    const formatSize = (bytes: number) => {
+                                      if (!bytes) return "";
+                                      if (bytes < 1024) return `${bytes} B`;
+                                      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+                                      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+                                    };
+
+                                    return (
+                                      <a
+                                        key={i}
+                                        href={file.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group border border-border rounded-xl overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all"
+                                      >
+                                        {isImage ? (
+                                          <div className="aspect-square bg-secondary/50">
+                                            <img
+                                              src={file.url}
+                                              alt={file.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className="aspect-square bg-secondary/50 flex items-center justify-center">
+                                            <FileIcon size={32} className="text-muted-foreground" />
+                                          </div>
+                                        )}
+                                        <div className="p-2.5">
+                                          <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
+                                          <div className="flex items-center justify-between mt-1">
+                                            <span className="text-[10px] text-muted-foreground">{formatSize(file.size)}</span>
+                                            <Download size={12} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                          </div>
+                                        </div>
+                                      </a>
+                                    );
+                                  })}
+                                </div>
                               )}
                             </div>
                           )}
