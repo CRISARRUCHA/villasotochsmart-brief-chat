@@ -28,7 +28,11 @@ const INITIAL_MESSAGE: DisplayMessage = {
 const PHASE1_TOPICS = 10;
 const PHASE2_TOPICS = 11;
 
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  initialMessage?: string;
+}
+
+export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<DisplayMessage[]>([INITIAL_MESSAGE]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_MESSAGE.content },
@@ -49,6 +53,16 @@ export const ChatInterface = () => {
   }, []);
 
   useEffect(scrollToBottom, [messages, isLoading, scrollToBottom]);
+
+  // Auto-send initial message from landing page
+  const initialSentRef = useRef(false);
+  useEffect(() => {
+    if (initialMessage && !initialSentRef.current) {
+      initialSentRef.current = true;
+      sendMessage(initialMessage);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const estimateProgress = useCallback((msgCount: number, currentPhase: Phase) => {
     if (currentPhase === "done") return 100;
