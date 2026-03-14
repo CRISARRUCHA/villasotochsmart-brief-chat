@@ -134,11 +134,6 @@ export const ChatInterface = () => {
             }
           }
 
-          if (error) {
-            console.error("Error saving brief:", error);
-            toast.error("Error al guardar el brief");
-            return;
-          }
 
           if (!briefIdRef.current) {
             briefIdRef.current = idToUse;
