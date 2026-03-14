@@ -221,9 +221,21 @@ const Dashboard = () => {
                                 ))}
                               </div>
                               {Object.keys(allData).filter(k => !HIDDEN_FIELDS.includes(k)).length === 0 && (
-                                <p className="text-sm text-muted-foreground mb-4">
-                                  Aún no hay datos de brief — revisa la conversación.
-                                </p>
+                                <div className="mb-4">
+                                  <p className="text-sm text-muted-foreground mb-3">
+                                    El brief aún está en proceso — aquí tienes un adelanto de la conversación:
+                                  </p>
+                                  <div className="space-y-2">
+                                    {(brief.chat_history as any[])
+                                      ?.filter((msg: any) => msg.role === "user")
+                                      .slice(0, 3)
+                                      .map((msg: any, i: number) => (
+                                        <p key={i} className="text-sm text-foreground bg-secondary/50 rounded-lg px-3 py-2">
+                                          {cleanMessageContent(msg.content || "").substring(0, 150)}
+                                        </p>
+                                      ))}
+                                  </div>
+                                </div>
                               )}
                             </>
                           ) : (
