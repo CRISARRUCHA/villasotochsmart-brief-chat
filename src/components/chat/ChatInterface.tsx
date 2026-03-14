@@ -25,7 +25,6 @@ interface DisplayMessage {
 const INITIAL_MESSAGE: DisplayMessage = {
   role: "assistant",
   content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender qué necesitas para tu nuevo sitio web. Nosotros nos encargamos de toda la parte técnica — tú solo cuéntame sobre tu negocio y lo que te gustaría comunicar.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cuál es el nombre de tu negocio o proyecto?**",
-  suggestions: ["Es un negocio nuevo, aún sin nombre", "Tengo el nombre pero no el logo", "Ya tengo marca registrada"],
 };
 
 const PHASE1_TOPICS = 8;
