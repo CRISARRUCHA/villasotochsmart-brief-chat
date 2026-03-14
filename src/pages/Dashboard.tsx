@@ -56,7 +56,14 @@ function cleanMessageContent(content: string): string {
     .trim();
 }
 
-type TabView = "summary" | "chat";
+type TabView = "summary" | "chat" | "files";
+
+interface StorageFile {
+  name: string;
+  url: string;
+  size: number;
+  created_at: string;
+}
 
 const Dashboard = () => {
   const [briefs, setBriefs] = useState<Brief[]>([]);
