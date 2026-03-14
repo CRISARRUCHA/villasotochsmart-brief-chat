@@ -91,7 +91,8 @@ export const ChatInterface = () => {
   const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
     try {
       const clientName = data.nombre_negocio || data.nombre_contacto || extractNameFromChat(chatHistory);
-      if (briefId) {
+      const currentBriefId = briefIdRef.current;
+      if (currentBriefId) {
         const { error } = await supabase.from("briefs").update({
           client_name: clientName,
           brief_data: data,
@@ -99,10 +100,9 @@ export const ChatInterface = () => {
           phase: phaseVal,
           chat_history: chatHistory as any,
           updated_at: new Date().toISOString(),
-        }).eq("id", briefId);
+        }).eq("id", currentBriefId);
         if (error) console.error("Error updating brief:", error);
       } else {
-        // Generate ID client-side to avoid needing SELECT permission after INSERT
         const newId = crypto.randomUUID();
         const { error } = await supabase.from("briefs").insert({
           id: newId,
@@ -116,13 +116,14 @@ export const ChatInterface = () => {
           console.error("Error saving brief:", error);
           toast.error("Error al guardar el brief");
         } else {
+          briefIdRef.current = newId;
           setBriefId(newId);
         }
       }
     } catch (err) {
       console.error("Error saving brief:", err);
     }
-  }, [briefId]);
+  }, [extractNameFromChat]);
 
   const sendMessage = async (text: string) => {
     if ((!text.trim() && pendingFiles.length === 0) || isLoading) return;
