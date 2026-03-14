@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User } from "lucide-react";
+import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -56,13 +56,22 @@ function cleanMessageContent(content: string): string {
     .trim();
 }
 
-type TabView = "summary" | "chat";
+type TabView = "summary" | "chat" | "files";
+
+interface StorageFile {
+  name: string;
+  url: string;
+  size: number;
+  created_at: string;
+}
 
 const Dashboard = () => {
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tabView, setTabView] = useState<Record<string, TabView>>({});
+  const [briefFiles, setBriefFiles] = useState<Record<string, StorageFile[]>>({});
+  const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -114,7 +123,42 @@ const Dashboard = () => {
     new Date(d).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
   const getTab = (id: string): TabView => tabView[id] || "summary";
-  const setTab = (id: string, tab: TabView) => setTabView(prev => ({ ...prev, [id]: tab }));
+  const setTab = (id: string, tab: TabView) => {
+    setTabView(prev => ({ ...prev, [id]: tab }));
+    if (tab === "files" && !briefFiles[id]) {
+      fetchFiles(id);
+    }
+  };
+
+  const fetchFiles = async (briefId: string) => {
+    setLoadingFiles(prev => ({ ...prev, [briefId]: true }));
+    const { data, error } = await supabase.storage
+      .from("brief-files")
+      .list(briefId, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+    
+    if (error) {
+      console.error("Error fetching files:", error);
+      setLoadingFiles(prev => ({ ...prev, [briefId]: false }));
+      return;
+    }
+
+    const files: StorageFile[] = (data || [])
+      .filter(f => f.name !== ".emptyFolderPlaceholder")
+      .map(f => {
+        const { data: urlData } = supabase.storage
+          .from("brief-files")
+          .getPublicUrl(`${briefId}/${f.name}`);
+        return {
+          name: f.name.replace(/^\d+-/, ""), // Remove timestamp prefix
+          url: urlData.publicUrl,
+          size: f.metadata?.size || 0,
+          created_at: f.created_at || "",
+        };
+      });
+
+    setBriefFiles(prev => ({ ...prev, [briefId]: files }));
+    setLoadingFiles(prev => ({ ...prev, [briefId]: false }));
+  };
 
   const getDisplayName = (brief: Brief): string => {
     const name = brief.client_name || (brief.brief_data as any)?.nombre_negocio;
@@ -203,6 +247,12 @@ const Dashboard = () => {
                             >
                               <MessageSquare size={12} /> Conversación
                             </button>
+                            <button
+                              onClick={() => setTab(brief.id, "files")}
+                              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${currentTab === "files" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                            >
+                              <Paperclip size={12} /> Archivos
+                            </button>
                           </div>
 
                           {currentTab === "summary" ? (
@@ -239,7 +289,7 @@ const Dashboard = () => {
                                 </div>
                               )}
                             </>
-                          ) : (
+                          ) : currentTab === "chat" ? (
                             <div className="space-y-3 max-h-[600px] overflow-y-auto mb-4 pr-1">
                               {(brief.chat_history as any[])?.map((msg, i) => {
                                 const cleaned = cleanMessageContent(msg.content || "");
@@ -256,6 +306,57 @@ const Dashboard = () => {
                               })}
                               {(!brief.chat_history || (brief.chat_history as any[]).length === 0) && (
                                 <p className="text-sm text-muted-foreground text-center py-4">No hay conversación registrada.</p>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="mb-4">
+                              {loadingFiles[brief.id] ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">Cargando archivos...</p>
+                              ) : !briefFiles[brief.id] || briefFiles[brief.id].length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">No hay archivos adjuntos para este brief.</p>
+                              ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                  {briefFiles[brief.id].map((file, i) => {
+                                    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+                                    const formatSize = (bytes: number) => {
+                                      if (!bytes) return "";
+                                      if (bytes < 1024) return `${bytes} B`;
+                                      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+                                      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+                                    };
+
+                                    return (
+                                      <a
+                                        key={i}
+                                        href={file.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group border border-border rounded-xl overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all"
+                                      >
+                                        {isImage ? (
+                                          <div className="aspect-square bg-secondary/50">
+                                            <img
+                                              src={file.url}
+                                              alt={file.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className="aspect-square bg-secondary/50 flex items-center justify-center">
+                                            <FileIcon size={32} className="text-muted-foreground" />
+                                          </div>
+                                        )}
+                                        <div className="p-2.5">
+                                          <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
+                                          <div className="flex items-center justify-between mt-1">
+                                            <span className="text-[10px] text-muted-foreground">{formatSize(file.size)}</span>
+                                            <Download size={12} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                          </div>
+                                        </div>
+                                      </a>
+                                    );
+                                  })}
+                                </div>
                               )}
                             </div>
                           )}
