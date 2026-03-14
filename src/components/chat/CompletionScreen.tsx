@@ -52,7 +52,7 @@ export const CompletionScreen = () => {
         transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
         className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center mb-6 ring-2 ring-primary/20 p-4"
       >
-        <img src={logoHorizontal} alt="Im-Pulsa Web" className="w-full h-full object-contain" />
+        <img src={logoIcon} alt="Im-Pulsa Web" className="w-full h-full object-contain" />
       </motion.div>
 
       <motion.h2
