@@ -7,6 +7,7 @@ import { TypingIndicator } from "./TypingIndicator";
 import { SuggestionChips } from "./SuggestionChips";
 import { BriefCard } from "./BriefCard";
 import { streamChat, parseAIResponse, type Message, type Phase } from "@/lib/chat-stream";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface DisplayMessage {
@@ -38,6 +39,7 @@ export const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [briefData, setBriefData] = useState<Record<string, any>>({});
   const [currentSuggestions, setCurrentSuggestions] = useState<string[] | undefined>(INITIAL_MESSAGE.suggestions);
+  const [briefId, setBriefId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -57,6 +59,29 @@ export const ChatInterface = () => {
     const phaseProgress = Math.min((userMsgCount / totalTopics) * (currentPhase === "brief" ? 50 : 50), currentPhase === "brief" ? 48 : 48);
     return Math.round(baseProgress + phaseProgress);
   }, []);
+
+  const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
+    const clientName = data.nombre_negocio || null;
+    if (briefId) {
+      await supabase.from("briefs").update({
+        client_name: clientName,
+        brief_data: data,
+        full_data: fullData,
+        phase: phaseVal,
+        chat_history: chatHistory as any,
+        updated_at: new Date().toISOString(),
+      }).eq("id", briefId);
+    } else {
+      const { data: inserted } = await supabase.from("briefs").insert({
+        client_name: clientName,
+        brief_data: data,
+        full_data: fullData,
+        phase: phaseVal,
+        chat_history: chatHistory as any,
+      }).select("id").single();
+      if (inserted) setBriefId(inserted.id);
+    }
+  }, [briefId]);
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -100,11 +125,16 @@ export const ChatInterface = () => {
             finalMsg.briefType = "preliminary";
             setBriefData(action.data);
             setProgress(50);
+            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
+            saveBrief(action.data, null, "brief", allMessages);
           } else if (action?.action === "generate_full_brief") {
-            finalMsg.briefData = { ...briefData, ...action.data };
+            const merged = { ...briefData, ...action.data };
+            finalMsg.briefData = merged;
             finalMsg.briefType = "full";
             setPhase("done");
             setProgress(100);
+            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
+            saveBrief(briefData, action.data, "done", allMessages);
           } else {
             setProgress(estimateProgress(newApiMessages.length + 1, phase));
           }
