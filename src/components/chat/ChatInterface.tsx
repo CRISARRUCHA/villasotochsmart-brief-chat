@@ -112,14 +112,20 @@ export const ChatInterface = () => {
   }, [briefId]);
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || isLoading) return;
+    if ((!text.trim() && pendingFiles.length === 0) || isLoading) return;
 
-    const userMsg: DisplayMessage = { role: "user", content: text.trim() };
-    const newApiMessages: Message[] = [...apiMessages, { role: "user", content: text.trim() }];
+    const attachedFiles = [...pendingFiles];
+    const fileNote = attachedFiles.length
+      ? `\n\n[El cliente adjuntó ${attachedFiles.length} archivo(s): ${attachedFiles.map(f => f.name).join(", ")}]`
+      : "";
+
+    const userMsg: DisplayMessage = { role: "user", content: text.trim(), files: attachedFiles.length ? attachedFiles : undefined };
+    const newApiMessages: Message[] = [...apiMessages, { role: "user", content: (text.trim() || "Adjunté archivos.") + fileNote }];
 
     setMessages(prev => [...prev, userMsg]);
     setApiMessages(newApiMessages);
     setInput("");
+    setPendingFiles([]);
     setCurrentSuggestions(undefined);
     setIsLoading(true);
 
