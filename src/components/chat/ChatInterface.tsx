@@ -8,6 +8,7 @@ import { SuggestionChips } from "./SuggestionChips";
 import { BriefCard } from "./BriefCard";
 import { FileUploadButton, type UploadedFile } from "./FileUploadButton";
 import { FileAttachments } from "./FileAttachments";
+import { CompletionScreen } from "./CompletionScreen";
 import { streamChat, parseAIResponse, type Message, type Phase } from "@/lib/chat-stream";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -248,6 +249,8 @@ export const ChatInterface = () => {
           {!isLoading && currentSuggestions && currentSuggestions.length > 0 && (
             <SuggestionChips suggestions={currentSuggestions} onSelect={sendMessage} />
           )}
+
+          {phase === "done" && <CompletionScreen />}
         </div>
       </div>
 
