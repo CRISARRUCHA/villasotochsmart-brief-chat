@@ -70,6 +70,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tabView, setTabView] = useState<Record<string, TabView>>({});
+  const [briefFiles, setBriefFiles] = useState<Record<string, StorageFile[]>>({});
+  const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
