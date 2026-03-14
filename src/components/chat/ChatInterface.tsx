@@ -82,7 +82,7 @@ export const ChatInterface = () => {
 
   const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
     try {
-      const clientName = data.nombre_negocio || null;
+      const clientName = data.nombre_negocio || data.nombre_contacto || null;
       if (briefId) {
         const { error } = await supabase.from("briefs").update({
           client_name: clientName,
