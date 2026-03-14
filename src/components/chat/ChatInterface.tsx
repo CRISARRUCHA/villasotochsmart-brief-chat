@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send } from "lucide-react";
+import { SendHorizontal } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { ChatHeader } from "./ChatHeader";
 import { MessageBubble } from "./MessageBubble";
@@ -20,7 +20,7 @@ interface DisplayMessage {
 
 const INITIAL_MESSAGE: DisplayMessage = {
   role: "assistant",
-  content: "¡Hola! Soy tu consultor de proyecto web. Vamos a diseñar juntos la estrategia perfecta para tu sitio.\n\nPara empezar, **¿cuál es el nombre de tu negocio o proyecto?**",
+  content: "👋 **¡Bienvenido! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender exactamente qué necesitas para tu nuevo sitio web. A través de esta conversación, voy a recopilar toda la información que nuestro equipo necesita para diseñar y desarrollar la página web perfecta para ti.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cuál es el nombre de tu negocio o proyecto?**",
   suggestions: ["Es un negocio nuevo, aún sin nombre", "Tengo el nombre pero no el logo", "Ya tengo marca registrada"],
 };
 
@@ -28,11 +28,7 @@ const INITIAL_MESSAGE: DisplayMessage = {
 const PHASE1_TOPICS = 10;
 const PHASE2_TOPICS = 11;
 
-interface ChatInterfaceProps {
-  initialMessage?: string;
-}
-
-export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
+export const ChatInterface = () => {
   const [messages, setMessages] = useState<DisplayMessage[]>([INITIAL_MESSAGE]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_MESSAGE.content },
@@ -54,20 +50,9 @@ export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
 
   useEffect(scrollToBottom, [messages, isLoading, scrollToBottom]);
 
-  // Auto-send initial message from landing page
-  const initialSentRef = useRef(false);
-  useEffect(() => {
-    if (initialMessage && !initialSentRef.current) {
-      initialSentRef.current = true;
-      sendMessage(initialMessage);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const estimateProgress = useCallback((msgCount: number, currentPhase: Phase) => {
     if (currentPhase === "done") return 100;
     const totalTopics = currentPhase === "brief" ? PHASE1_TOPICS : PHASE2_TOPICS;
-    // Roughly 2 messages per topic (question + answer)
     const userMsgCount = Math.floor(msgCount / 2);
     const baseProgress = currentPhase === "full" ? 50 : 0;
     const phaseProgress = Math.min((userMsgCount / totalTopics) * (currentPhase === "brief" ? 50 : 50), currentPhase === "brief" ? 48 : 48);
@@ -120,7 +105,6 @@ export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
           assistantContent += chunk;
           setMessages(prev => {
             const last = prev[prev.length - 1];
-            // Show raw content while streaming (will parse after)
             const displayContent = assistantContent.replace(/\{"suggestions".*$/s, "").replace(/\{"action".*$/s, "").trim();
             if (last?.role === "assistant" && prev.indexOf(last) === prev.length - 1 && !last.briefData) {
               return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: displayContent } : m);
@@ -154,7 +138,6 @@ export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
           }
 
           setMessages(prev => {
-            // Replace the streaming message with final parsed version
             const withoutStreaming = prev.filter((m, i) => !(i === prev.length - 1 && m.role === "assistant" && !m.briefData));
             return [...withoutStreaming, finalMsg];
           });
@@ -227,22 +210,27 @@ export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
       {/* Input */}
       {phase !== "done" && (
         <footer className="border-t border-border bg-background p-3 sm:p-4">
-          <div className="max-w-3xl mx-auto flex items-end gap-2">
-            <TextareaAutosize
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Escribe tu respuesta..."
-              maxRows={4}
-              className="flex-1 resize-none bg-secondary border-none rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 transition-all"
-            />
-            <button
-              onClick={() => sendMessage(input)}
-              disabled={!input.trim() || isLoading}
-              className="shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 transition-opacity hover:opacity-90"
-            >
-              <Send size={16} />
-            </button>
+          <div className="max-w-3xl mx-auto">
+            <div className="relative rounded-2xl bg-card ring-1 ring-white/[0.08] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_2px_20px_rgba(0,0,0,0.4)]">
+              <TextareaAutosize
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Escribe tu respuesta..."
+                maxRows={4}
+                className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
+              />
+              <div className="absolute bottom-3 right-3">
+                <button
+                  onClick={() => sendMessage(input)}
+                  disabled={!input.trim() || isLoading}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary hover:brightness-110 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-[0_0_20px_rgba(20,136,252,0.3)]"
+                >
+                  <span className="hidden sm:inline">Enviar</span>
+                  <SendHorizontal size={16} />
+                </button>
+              </div>
+            </div>
           </div>
         </footer>
       )}

@@ -14,21 +14,21 @@ export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-      className={`flex items-start gap-3 ${isAssistant ? "mr-12" : "ml-12 justify-end"}`}
+      className={`flex items-start gap-3 ${isAssistant ? "mr-8 sm:mr-12" : "ml-8 sm:ml-12 justify-end"}`}
     >
       {isAssistant && (
-        <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center shrink-0 mt-1">
-          <span className="text-[10px] font-medium text-muted-foreground">IA</span>
+        <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20">
+          <span className="text-[10px] font-bold text-primary">iW</span>
         </div>
       )}
       <div
         className={
           isAssistant
-            ? "bg-secondary text-foreground rounded-2xl rounded-tl-none px-4 py-3 shadow-message"
-            : "bg-primary text-primary-foreground rounded-2xl rounded-tr-none px-4 py-3 shadow-message"
+            ? "bg-card text-foreground rounded-2xl rounded-tl-none px-4 py-3 shadow-message ring-1 ring-white/[0.06]"
+            : "bg-primary text-primary-foreground rounded-2xl rounded-tr-none px-4 py-3 shadow-[0_0_16px_rgba(20,136,252,0.2)]"
         }
       >
-        <div className="text-[15px] leading-relaxed prose prose-sm max-w-none prose-p:my-1 prose-headings:text-inherit">
+        <div className="text-[15px] leading-relaxed prose prose-sm prose-invert max-w-none prose-p:my-1 prose-headings:text-inherit prose-strong:text-inherit">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       </div>

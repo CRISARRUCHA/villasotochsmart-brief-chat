@@ -15,7 +15,7 @@ export const SuggestionChips = ({ suggestions, onSelect }: SuggestionChipsProps)
       <button
         key={i}
         onClick={() => onSelect(s)}
-        className="text-sm px-3 py-1.5 rounded-full border border-border bg-background text-foreground hover:bg-secondary transition-colors duration-150"
+        className="text-sm px-3.5 py-1.5 rounded-full border border-white/10 bg-card text-muted-foreground hover:text-foreground hover:bg-accent hover:border-white/15 transition-all duration-200 active:scale-95"
       >
         {s}
       </button>

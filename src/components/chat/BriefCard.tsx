@@ -50,7 +50,7 @@ export const BriefCard = ({ title, data, onContinue, showContinue }: BriefCardPr
       initial={{ opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      className="bg-background border border-border rounded-2xl p-6 shadow-card ml-10"
+      className="bg-card border border-white/[0.08] rounded-2xl p-6 shadow-card ml-10 ring-1 ring-white/[0.04]"
     >
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -75,7 +75,7 @@ export const BriefCard = ({ title, data, onContinue, showContinue }: BriefCardPr
       {showContinue && onContinue && (
         <button
           onClick={onContinue}
-          className="mt-5 w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
+          className="mt-5 w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-medium hover:brightness-110 transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(20,136,252,0.3)]"
         >
           Continuar con levantamiento técnico
           <ArrowRight size={16} />

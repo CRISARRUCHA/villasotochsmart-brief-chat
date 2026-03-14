@@ -2,15 +2,15 @@ import { motion } from "framer-motion";
 import type { Phase } from "@/lib/chat-stream";
 
 const phaseConfig = {
-  brief: { label: "Brief", subtitle: "Fase 1 — Brief Preliminar", colorClass: "bg-phase-brief" },
-  full: { label: "Técnico", subtitle: "Fase 2 — Levantamiento Técnico", colorClass: "bg-phase-tech" },
+  brief: { label: "Brief", subtitle: "Fase 1 — Conociendo tu negocio", colorClass: "bg-primary" },
+  full: { label: "Técnico", subtitle: "Fase 2 — Detalles técnicos", colorClass: "bg-phase-tech" },
   done: { label: "Completo", subtitle: "Brief completado", colorClass: "bg-phase-done" },
 };
 
 const badgeColorClass = {
-  brief: "bg-phase-brief/10 text-phase-brief",
-  full: "bg-phase-tech/10 text-phase-tech",
-  done: "bg-phase-done/10 text-phase-done",
+  brief: "bg-primary/15 text-primary",
+  full: "bg-phase-tech/15 text-phase-tech",
+  done: "bg-phase-done/15 text-phase-done",
 };
 
 interface ChatHeaderProps {
@@ -22,14 +22,14 @@ export const ChatHeader = ({ phase, progress }: ChatHeaderProps) => {
   const config = phaseConfig[phase];
 
   return (
-    <header className="relative px-4 sm:px-6 py-4 border-b border-border bg-background z-10">
+    <header className="relative px-4 sm:px-6 py-4 border-b border-border bg-card z-10">
       <div className="flex items-center justify-between max-w-3xl mx-auto">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-            <span className="text-background text-xs font-semibold">B</span>
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(20,136,252,0.4)]">
+            <span className="text-primary-foreground text-xs font-bold">iW</span>
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-foreground">Brief IA</h1>
+            <h1 className="text-sm font-semibold text-foreground">Im-Pulsa Web</h1>
             <p className="text-xs text-muted-foreground">{config.subtitle}</p>
           </div>
         </div>
@@ -40,7 +40,7 @@ export const ChatHeader = ({ phase, progress }: ChatHeaderProps) => {
           </span>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 h-[2px] w-full bg-secondary">
+      <div className="absolute bottom-0 left-0 h-[2px] w-full bg-border">
         <motion.div
           className={`h-full ${config.colorClass}`}
           initial={{ width: 0 }}
