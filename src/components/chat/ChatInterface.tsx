@@ -18,6 +18,7 @@ interface DisplayMessage {
   suggestions?: string[];
   briefData?: Record<string, any>;
   briefType?: "preliminary" | "full";
+  files?: UploadedFile[];
 }
 
 const INITIAL_MESSAGE: DisplayMessage = {
