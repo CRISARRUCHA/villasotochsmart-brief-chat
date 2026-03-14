@@ -60,6 +60,29 @@ export const ChatInterface = () => {
     return Math.round(baseProgress + phaseProgress);
   }, []);
 
+  const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
+    const clientName = data.nombre_negocio || null;
+    if (briefId) {
+      await supabase.from("briefs").update({
+        client_name: clientName,
+        brief_data: data,
+        full_data: fullData,
+        phase: phaseVal,
+        chat_history: chatHistory as any,
+        updated_at: new Date().toISOString(),
+      }).eq("id", briefId);
+    } else {
+      const { data: inserted } = await supabase.from("briefs").insert({
+        client_name: clientName,
+        brief_data: data,
+        full_data: fullData,
+        phase: phaseVal,
+        chat_history: chatHistory as any,
+      }).select("id").single();
+      if (inserted) setBriefId(inserted.id);
+    }
+  }, [briefId]);
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
 
