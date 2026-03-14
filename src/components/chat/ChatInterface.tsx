@@ -80,9 +80,16 @@ export const ChatInterface = () => {
     return Math.round(baseProgress + phaseProgress);
   }, []);
 
+  const extractNameFromChat = useCallback((chatHistory: Message[]): string | null => {
+    // Find the first user message (their name + business intro)
+    const firstUserMsg = chatHistory.find(m => m.role === "user");
+    if (!firstUserMsg) return null;
+    return firstUserMsg.content.substring(0, 100).trim() || null;
+  }, []);
+
   const saveBrief = useCallback(async (data: Record<string, any>, fullData: Record<string, any> | null, phaseVal: string, chatHistory: Message[]) => {
     try {
-      const clientName = data.nombre_negocio || data.nombre_contacto || null;
+      const clientName = data.nombre_negocio || data.nombre_contacto || extractNameFromChat(chatHistory);
       if (briefId) {
         const { error } = await supabase.from("briefs").update({
           client_name: clientName,
