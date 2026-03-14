@@ -9,15 +9,29 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const [isSignup, setIsSignup] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (isSignup) {
+      const { error } = await supabase.auth.signUp({ email, password });
+      setLoading(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Cuenta creada. Iniciando sesión...");
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+        if (!loginError) navigate("/dashboard");
+      }
     } else {
-      navigate("/dashboard");
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      setLoading(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        navigate("/dashboard");
+      }
     }
   };
 
