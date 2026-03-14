@@ -43,6 +43,7 @@ export const ChatInterface = () => {
   const [currentSuggestions, setCurrentSuggestions] = useState<string[] | undefined>(undefined);
   const [briefId, setBriefId] = useState<string | null>(null);
   const briefIdRef = useRef<string | null>(null);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);

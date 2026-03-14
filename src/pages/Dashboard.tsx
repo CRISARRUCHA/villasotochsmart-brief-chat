@@ -14,6 +14,7 @@ interface Brief {
   chat_history: Array<{ role: string; content: string }>;
   phase: string;
   created_at: string;
+  updated_at: string;
 }
 
 const FIELD_LABELS: Record<string, string> = {
