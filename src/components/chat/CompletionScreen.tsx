@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { PartyPopper, Rocket } from "lucide-react";
+import { Rocket } from "lucide-react";
+import logoHorizontal from "@/assets/logo-horizontal.png";
 
 export const CompletionScreen = () => {
   useEffect(() => {
