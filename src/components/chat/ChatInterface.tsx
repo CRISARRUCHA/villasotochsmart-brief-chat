@@ -249,6 +249,8 @@ export const ChatInterface = () => {
           {!isLoading && currentSuggestions && currentSuggestions.length > 0 && (
             <SuggestionChips suggestions={currentSuggestions} onSelect={sendMessage} />
           )}
+
+          {phase === "done" && <CompletionScreen />}
         </div>
       </div>
 
