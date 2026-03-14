@@ -125,11 +125,16 @@ export const ChatInterface = () => {
             finalMsg.briefType = "preliminary";
             setBriefData(action.data);
             setProgress(50);
+            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
+            saveBrief(action.data, null, "brief", allMessages);
           } else if (action?.action === "generate_full_brief") {
-            finalMsg.briefData = { ...briefData, ...action.data };
+            const merged = { ...briefData, ...action.data };
+            finalMsg.briefData = merged;
             finalMsg.briefType = "full";
             setPhase("done");
             setProgress(100);
+            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
+            saveBrief(briefData, action.data, "done", allMessages);
           } else {
             setProgress(estimateProgress(newApiMessages.length + 1, phase));
           }
