@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import logoIcon from "@/assets/logo-icon.png";
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
