@@ -224,6 +224,11 @@ export const ChatInterface = () => {
           {messages.map((m, i) => (
             <div key={i} className="space-y-3">
               {m.content && <MessageBubble role={m.role} content={m.content} />}
+              {m.files && m.files.length > 0 && (
+                <div className={m.role === "user" ? "ml-8 sm:ml-12 flex justify-end" : "mr-8 sm:mr-12"}>
+                  <FileAttachments files={m.files} />
+                </div>
+              )}
               {m.briefData && m.briefType === "preliminary" && (
                 <BriefCard
                   title="Resumen de Proyecto"
