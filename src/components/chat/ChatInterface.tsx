@@ -54,6 +54,16 @@ export const ChatInterface = ({ initialMessage }: ChatInterfaceProps) => {
 
   useEffect(scrollToBottom, [messages, isLoading, scrollToBottom]);
 
+  // Auto-send initial message from landing page
+  const initialSentRef = useRef(false);
+  useEffect(() => {
+    if (initialMessage && !initialSentRef.current) {
+      initialSentRef.current = true;
+      sendMessage(initialMessage);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const estimateProgress = useCallback((msgCount: number, currentPhase: Phase) => {
     if (currentPhase === "done") return 100;
     const totalTopics = currentPhase === "brief" ? PHASE1_TOPICS : PHASE2_TOPICS;
