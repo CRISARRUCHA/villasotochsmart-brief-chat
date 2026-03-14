@@ -45,7 +45,7 @@ const Login = () => {
           <h1 className="text-xl font-semibold text-foreground">Brief IA</h1>
           <p className="text-sm text-muted-foreground">Panel de administración</p>
         </div>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
             <input
@@ -73,7 +73,14 @@ const Login = () => {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? (isSignup ? "Creando..." : "Entrando...") : (isSignup ? "Crear cuenta" : "Entrar")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSignup(!isSignup)}
+            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {isSignup ? "¿Ya tienes cuenta? Inicia sesión" : "Crear cuenta nueva"}
           </button>
         </form>
       </div>
