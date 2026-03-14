@@ -247,6 +247,12 @@ const Dashboard = () => {
                             >
                               <MessageSquare size={12} /> Conversación
                             </button>
+                            <button
+                              onClick={() => setTab(brief.id, "files")}
+                              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${currentTab === "files" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                            >
+                              <Paperclip size={12} /> Archivos
+                            </button>
                           </div>
 
                           {currentTab === "summary" ? (
