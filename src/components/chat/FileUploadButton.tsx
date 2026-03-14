@@ -105,30 +105,35 @@ export const FileUploadButton = ({ briefId, onFilesUploaded, pendingFiles, onRem
       >
         {uploading ? <Loader2 size={18} className="animate-spin" /> : <Paperclip size={18} />}
       </button>
-
-      {pendingFiles.length > 0 && (
-        <div className="absolute bottom-full left-0 right-0 p-2 flex flex-wrap gap-2 mb-1">
-          {pendingFiles.map((f, i) => (
-            <div
-              key={i}
-              className="relative group flex items-center gap-2 bg-accent rounded-lg px-3 py-2 text-xs text-foreground ring-1 ring-white/[0.06] max-w-[200px]"
-            >
-              {isImage(f.type) ? (
-                <img src={f.url} alt={f.name} className="w-8 h-8 rounded object-cover" />
-              ) : (
-                <FileIcon size={16} className="text-muted-foreground shrink-0" />
-              )}
-              <span className="truncate">{f.name}</span>
-              <button
-                onClick={() => onRemoveFile(i)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X size={10} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </>
+  );
+};
+
+export const PendingFilesPreview = ({ files, onRemove }: { files: UploadedFile[]; onRemove: (i: number) => void }) => {
+  if (!files.length) return null;
+  const isImage = (type: string) => type.startsWith("image/");
+
+  return (
+    <div className="flex flex-wrap gap-2 px-4 py-2 border-b border-border bg-card/50">
+      {files.map((f, i) => (
+        <div
+          key={i}
+          className="relative group flex items-center gap-2 bg-accent rounded-lg px-3 py-2 text-xs text-foreground ring-1 ring-white/[0.06] max-w-[200px]"
+        >
+          {isImage(f.type) ? (
+            <img src={f.url} alt={f.name} className="w-8 h-8 rounded object-cover" />
+          ) : (
+            <FileIcon size={16} className="text-muted-foreground shrink-0" />
+          )}
+          <span className="truncate">{f.name}</span>
+          <button
+            onClick={() => onRemove(i)}
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <X size={10} />
+          </button>
+        </div>
+      ))}
+    </div>
   );
 };
