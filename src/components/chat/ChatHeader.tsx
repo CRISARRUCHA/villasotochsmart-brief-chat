@@ -3,7 +3,7 @@ import type { Phase } from "@/lib/chat-stream";
 
 const phaseConfig = {
   brief: { label: "Brief", subtitle: "Fase 1 — Conociendo tu negocio", colorClass: "bg-primary" },
-  full: { label: "Técnico", subtitle: "Fase 2 — Detalles técnicos", colorClass: "bg-phase-tech" },
+  full: { label: "Contenido", subtitle: "Fase 2 — Contenido y diseño", colorClass: "bg-phase-tech" },
   done: { label: "Completo", subtitle: "Brief completado", colorClass: "bg-phase-done" },
 };
 
