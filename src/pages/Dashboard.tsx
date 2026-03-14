@@ -123,7 +123,42 @@ const Dashboard = () => {
     new Date(d).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
   const getTab = (id: string): TabView => tabView[id] || "summary";
-  const setTab = (id: string, tab: TabView) => setTabView(prev => ({ ...prev, [id]: tab }));
+  const setTab = (id: string, tab: TabView) => {
+    setTabView(prev => ({ ...prev, [id]: tab }));
+    if (tab === "files" && !briefFiles[id]) {
+      fetchFiles(id);
+    }
+  };
+
+  const fetchFiles = async (briefId: string) => {
+    setLoadingFiles(prev => ({ ...prev, [briefId]: true }));
+    const { data, error } = await supabase.storage
+      .from("brief-files")
+      .list(briefId, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+    
+    if (error) {
+      console.error("Error fetching files:", error);
+      setLoadingFiles(prev => ({ ...prev, [briefId]: false }));
+      return;
+    }
+
+    const files: StorageFile[] = (data || [])
+      .filter(f => f.name !== ".emptyFolderPlaceholder")
+      .map(f => {
+        const { data: urlData } = supabase.storage
+          .from("brief-files")
+          .getPublicUrl(`${briefId}/${f.name}`);
+        return {
+          name: f.name.replace(/^\d+-/, ""), // Remove timestamp prefix
+          url: urlData.publicUrl,
+          size: f.metadata?.size || 0,
+          created_at: f.created_at || "",
+        };
+      });
+
+    setBriefFiles(prev => ({ ...prev, [briefId]: files }));
+    setLoadingFiles(prev => ({ ...prev, [briefId]: false }));
+  };
 
   const getDisplayName = (brief: Brief): string => {
     const name = brief.client_name || (brief.brief_data as any)?.nombre_negocio;
