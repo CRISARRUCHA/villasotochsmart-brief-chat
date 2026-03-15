@@ -241,6 +241,7 @@ export const ChatInterface = () => {
     };
     setMessages(prev => [...prev, introMsg]);
     setApiMessages([{ role: "assistant", content: introMsg.content }]);
+    fullChatHistoryRef.current = [...fullChatHistoryRef.current, { role: "assistant", content: introMsg.content }];
     setCurrentSuggestions(introMsg.suggestions);
   };
 
