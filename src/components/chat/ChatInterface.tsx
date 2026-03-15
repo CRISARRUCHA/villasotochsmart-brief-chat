@@ -158,6 +158,8 @@ export const ChatInterface = () => {
 
     const userMsg: DisplayMessage = { role: "user", content: text.trim(), files: attachedFiles.length ? attachedFiles : undefined };
     const newApiMessages: Message[] = [...apiMessages, { role: "user", content: (text.trim() || "Adjunté archivos.") + fileNote }];
+    const userHistoryMsg: Message = { role: "user", content: (text.trim() || "Adjunté archivos.") + fileNote };
+    fullChatHistoryRef.current = [...fullChatHistoryRef.current, userHistoryMsg];
 
     setMessages(prev => [...prev, userMsg]);
     setApiMessages(newApiMessages);
