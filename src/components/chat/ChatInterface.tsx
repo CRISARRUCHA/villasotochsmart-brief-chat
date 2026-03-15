@@ -44,6 +44,9 @@ export const ChatInterface = () => {
   const [briefId, setBriefId] = useState<string | null>(null);
   const briefIdRef = useRef<string | null>(null);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const fullChatHistoryRef = useRef<Message[]>([
+    { role: "assistant", content: INITIAL_MESSAGE.content },
+  ]);
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -155,6 +158,8 @@ export const ChatInterface = () => {
 
     const userMsg: DisplayMessage = { role: "user", content: text.trim(), files: attachedFiles.length ? attachedFiles : undefined };
     const newApiMessages: Message[] = [...apiMessages, { role: "user", content: (text.trim() || "Adjunté archivos.") + fileNote }];
+    const userHistoryMsg: Message = { role: "user", content: (text.trim() || "Adjunté archivos.") + fileNote };
+    fullChatHistoryRef.current = [...fullChatHistoryRef.current, userHistoryMsg];
 
     setMessages(prev => [...prev, userMsg]);
     setApiMessages(newApiMessages);
@@ -184,6 +189,7 @@ export const ChatInterface = () => {
         },
         onDone: () => {
           const { text: cleanText, action, suggestions } = parseAIResponse(assistantContent);
+          fullChatHistoryRef.current = [...fullChatHistoryRef.current, { role: "assistant", content: assistantContent }];
 
           const finalMsg: DisplayMessage = { role: "assistant", content: cleanText, suggestions };
 
@@ -192,22 +198,18 @@ export const ChatInterface = () => {
             finalMsg.briefType = "preliminary";
             setBriefData(action.data);
             setProgress(50);
-            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
-            saveBrief(action.data, null, "brief", allMessages);
+            saveBrief(action.data, null, "brief", fullChatHistoryRef.current);
           } else if (action?.action === "generate_full_brief") {
             const merged = { ...briefData, ...action.data };
             finalMsg.briefData = merged;
             finalMsg.briefType = "full";
             setPhase("done");
             setProgress(100);
-            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
-            saveBrief(merged, action.data, "done", allMessages);
+            saveBrief(merged, action.data, "done", fullChatHistoryRef.current);
           } else {
             setProgress(estimateProgress(newApiMessages.length + 1, phase));
-            // Auto-save progress periodically
-            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
             const currentData = phase === "brief" ? { ...briefData, _partial: true } : briefData;
-            saveBrief(currentData, null, phase, allMessages);
+            saveBrief(currentData, null, phase, fullChatHistoryRef.current);
           }
 
           setMessages(prev => {
@@ -229,6 +231,7 @@ export const ChatInterface = () => {
 
   const handleContinueToPhase2 = () => {
     setPhase("full");
+    // Keep fullChatHistoryRef intact — don't reset it
     setApiMessages([]);
     setCurrentSuggestions(undefined);
     const introMsg: DisplayMessage = {
@@ -238,6 +241,7 @@ export const ChatInterface = () => {
     };
     setMessages(prev => [...prev, introMsg]);
     setApiMessages([{ role: "assistant", content: introMsg.content }]);
+    fullChatHistoryRef.current = [...fullChatHistoryRef.current, { role: "assistant", content: introMsg.content }];
     setCurrentSuggestions(introMsg.suggestions);
   };
 
