@@ -231,6 +231,7 @@ export const ChatInterface = () => {
 
   const handleContinueToPhase2 = () => {
     setPhase("full");
+    // Keep fullChatHistoryRef intact — don't reset it
     setApiMessages([]);
     setCurrentSuggestions(undefined);
     const introMsg: DisplayMessage = {
