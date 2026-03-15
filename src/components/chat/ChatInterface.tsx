@@ -189,6 +189,7 @@ export const ChatInterface = () => {
         },
         onDone: () => {
           const { text: cleanText, action, suggestions } = parseAIResponse(assistantContent);
+          fullChatHistoryRef.current = [...fullChatHistoryRef.current, { role: "assistant", content: assistantContent }];
 
           const finalMsg: DisplayMessage = { role: "assistant", content: cleanText, suggestions };
 
@@ -197,22 +198,18 @@ export const ChatInterface = () => {
             finalMsg.briefType = "preliminary";
             setBriefData(action.data);
             setProgress(50);
-            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
-            saveBrief(action.data, null, "brief", allMessages);
+            saveBrief(action.data, null, "brief", fullChatHistoryRef.current);
           } else if (action?.action === "generate_full_brief") {
             const merged = { ...briefData, ...action.data };
             finalMsg.briefData = merged;
             finalMsg.briefType = "full";
             setPhase("done");
             setProgress(100);
-            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
-            saveBrief(merged, action.data, "done", allMessages);
+            saveBrief(merged, action.data, "done", fullChatHistoryRef.current);
           } else {
             setProgress(estimateProgress(newApiMessages.length + 1, phase));
-            // Auto-save progress periodically
-            const allMessages: Message[] = [...newApiMessages, { role: "assistant", content: assistantContent }];
             const currentData = phase === "brief" ? { ...briefData, _partial: true } : briefData;
-            saveBrief(currentData, null, phase, allMessages);
+            saveBrief(currentData, null, phase, fullChatHistoryRef.current);
           }
 
           setMessages(prev => {
