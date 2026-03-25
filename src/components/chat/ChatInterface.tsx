@@ -42,7 +42,7 @@ interface ChatInterfaceProps {
 
 export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
   const initialMessage = INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general;
-  const [messages, setMessages] = useState<DisplayMessage[]>([INITIAL_MESSAGE]);
+  const [messages, setMessages] = useState<DisplayMessage[]>([initialMessage]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_MESSAGE.content },
   ]);
