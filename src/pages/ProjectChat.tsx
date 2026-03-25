@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 
 const ProjectChat = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: paramSlug } = useParams<{ slug: string }>();
+  const location = window.location.pathname;
+  const slug = paramSlug || location.split("/").filter(Boolean)[0];
   const [initialMessage, setInitialMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 

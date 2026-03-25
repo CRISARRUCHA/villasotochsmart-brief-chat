@@ -23,8 +23,11 @@ interface Project {
 }
 
 const ProjectLanding = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: paramSlug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  // Support legacy routes like /villas-otoch by extracting slug from path
+  const location = window.location.pathname;
+  const slug = paramSlug || location.replace(/^\//, "").replace(/\/.*$/, "");
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
