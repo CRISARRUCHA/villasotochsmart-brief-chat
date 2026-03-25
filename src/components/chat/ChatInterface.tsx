@@ -59,7 +59,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
   const briefIdRef = useRef<string | null>(null);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const fullChatHistoryRef = useRef<Message[]>([
-    { role: "assistant", content: initialMessage.content },
+    { role: "assistant", content: baseMessage.content },
   ]);
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
