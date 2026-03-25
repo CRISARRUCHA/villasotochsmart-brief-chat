@@ -27,7 +27,7 @@ export const ChatHeader = ({ phase, progress }: ChatHeaderProps) => {
       <div className="flex items-center justify-between max-w-3xl mx-auto">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(20,136,252,0.4)] p-1.5">
-            <img src="/lovable-uploads/f099b6cc-b6ed-40a1-b66c-00cebe0e2a6d.png" alt="Im-Pulsa Web" className="w-full h-full object-contain" />
+            <img src="/lovable-uploads/icono-blanco.png" alt="Im-Pulsa Web" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-sm font-semibold text-foreground">Im-Pulsa Web</h1>
