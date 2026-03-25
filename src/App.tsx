@@ -7,6 +7,8 @@ import Home from "./pages/Home.tsx";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import VillasOtoch from "./pages/VillasOtoch.tsx";
+import VillasOtochChat from "./pages/VillasOtochChat.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

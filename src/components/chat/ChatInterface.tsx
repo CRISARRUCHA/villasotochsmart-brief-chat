@@ -22,15 +22,26 @@ interface DisplayMessage {
   files?: UploadedFile[];
 }
 
-const INITIAL_MESSAGE: DisplayMessage = {
-  role: "assistant",
-  content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender qué necesitas para tu nuevo sitio web. Nosotros nos encargamos de toda la parte técnica — tú solo cuéntame sobre tu negocio y lo que te gustaría comunicar.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cómo te llamas y cuál es el nombre de tu negocio o proyecto?**",
+const INITIAL_MESSAGES: Record<string, DisplayMessage> = {
+  general: {
+    role: "assistant",
+    content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender qué necesitas para tu nuevo sitio web. Nosotros nos encargamos de toda la parte técnica — tú solo cuéntame sobre tu negocio y lo que te gustaría comunicar.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cómo te llamas y cuál es el nombre de tu negocio o proyecto?**",
+  },
+  "villas-otoch": {
+    role: "assistant",
+    content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu visión sobre el **Proyecto Social Villas Otoch**. Queremos entender qué objetivos tiene tu dependencia y qué esperas del sitio web del proyecto.\n\n**Es muy sencillo:** solo responde mis preguntas con honestidad. Tu perspectiva es muy valiosa para crear algo que represente a todos. 🚀\n\nEmpecemos — **¿cómo te llamas y qué dependencia u organización representas?**",
+  },
 };
 
 const PHASE1_TOPICS = 8;
 const PHASE2_TOPICS = 8;
 
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  project?: string;
+}
+
+export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
+  const initialMessage = INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general;
   const [messages, setMessages] = useState<DisplayMessage[]>([INITIAL_MESSAGE]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_MESSAGE.content },

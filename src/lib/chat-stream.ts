@@ -7,11 +7,12 @@ interface StreamChatParams {
   messages: Message[];
   phase: Phase;
   briefData?: Record<string, any>;
+  project?: string;
   onDelta: (text: string) => void;
   onDone: () => void;
 }
 
-export async function streamChat({ messages, phase, briefData, onDelta, onDone }: StreamChatParams) {
+export async function streamChat({ messages, phase, briefData, project, onDelta, onDone }: StreamChatParams) {
   const resp = await fetch(CHAT_URL, {
     method: "POST",
     headers: {
@@ -22,6 +23,7 @@ export async function streamChat({ messages, phase, briefData, onDelta, onDone }
       messages,
       phase: phase === "full" ? "full" : "brief",
       briefData,
+      project,
     }),
   });
 
