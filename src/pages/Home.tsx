@@ -32,13 +32,13 @@ const Home = () => {
 
   return (
     <ParticleHero particleCount={10}>
-      <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-4 text-center gap-5 sm:gap-8 py-12 sm:py-0 sm:justify-center min-h-screen overflow-y-auto">
+      <div className="flex flex-col items-center w-full max-w-2xl mx-auto text-center gap-5 sm:gap-8 py-12 sm:py-0 sm:justify-center min-h-screen overflow-y-auto px-[12px]">
         {/* Logo + Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col items-center gap-2 sm:gap-3"
+          className="flex flex-col items-center gap-2 sm:gap-3 mt-[10px]"
         >
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary flex items-center justify-center shadow-[0_0_24px_rgba(20,136,252,0.5)] p-2">
             <img
