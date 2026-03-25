@@ -301,7 +301,7 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        ) : (
+        ) : loading ? (
           <div className="text-center py-20 text-muted-foreground text-sm">Cargando...</div>
         ) : briefs.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground text-sm">No hay briefs guardados aún.</div>
