@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { Phase } from "@/lib/chat-stream";
-import logoIcon from "@/assets/logo-icon.png";
+
 
 const phaseConfig = {
   brief: { label: "Brief", subtitle: "Fase 1 — Conociendo tu negocio", colorClass: "bg-primary" },
