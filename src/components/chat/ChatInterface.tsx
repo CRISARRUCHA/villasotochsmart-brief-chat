@@ -56,7 +56,7 @@ export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
   const briefIdRef = useRef<string | null>(null);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const fullChatHistoryRef = useRef<Message[]>([
-    { role: "assistant", content: INITIAL_MESSAGE.content },
+    { role: "assistant", content: initialMessage.content },
   ]);
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
