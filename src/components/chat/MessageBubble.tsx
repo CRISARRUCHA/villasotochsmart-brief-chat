@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import logoIcon from "@/assets/logo-icon.png";
+
 
 interface MessageBubbleProps {
   role: "user" | "assistant";
@@ -19,7 +19,7 @@ export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
     >
       {isAssistant && (
         <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20 p-1">
-          <img src={logoIcon} alt="iW" className="w-full h-full object-contain" />
+          <img src="/lovable-uploads/f099b6cc-b6ed-40a1-b66c-00cebe0e2a6d.png" alt="iW" className="w-full h-full object-contain" />
         </div>
       )}
       <div
