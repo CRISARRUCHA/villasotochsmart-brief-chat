@@ -19,7 +19,7 @@ export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
     >
       {isAssistant && (
         <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20 p-1">
-          <img src="/lovable-uploads/55dcf272-8bf1-4591-968e-0d6aa8b77e0e.png" alt="iW" className="w-full h-full object-contain" />
+          <img src="/lovable-uploads/icono-blanco.png" alt="iW" className="w-full h-full object-contain" />
         </div>
       )}
       <div
