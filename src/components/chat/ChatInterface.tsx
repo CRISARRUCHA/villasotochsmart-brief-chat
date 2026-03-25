@@ -186,6 +186,7 @@ export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
         messages: newApiMessages,
         phase,
         briefData: phase === "full" ? briefData : undefined,
+        project,
         onDelta: (chunk) => {
           assistantContent += chunk;
           setMessages(prev => {
