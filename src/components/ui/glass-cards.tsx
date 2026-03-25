@@ -147,7 +147,7 @@ const GlassCard: React.FC<GlassCardProps> = ({ icon, title, description, index, 
             {icon}
           </div>
           <h3 className="relative text-lg sm:text-xl font-bold text-foreground text-center">{title}</h3>
-          <p className="relative text-sm text-muted-foreground text-center max-w-sm leading-relaxed">{description}</p>
+          <p className="relative text-sm sm:text-base font-medium text-foreground/80 text-center max-w-sm leading-relaxed">{description}</p>
         </div>
       </div>
     </div>
