@@ -64,18 +64,54 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 w-full"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full"
         >
           {steps.map((step, i) => (
             <div
               key={i}
-              className="flex flex-col items-center gap-1.5 sm:gap-2 bg-card/60 backdrop-blur-sm ring-1 ring-border rounded-xl px-3 py-3 sm:px-4 sm:py-5"
+              className="relative group isolate rounded-2xl overflow-hidden"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
-                {step.icon}
+              {/* Electric border glow */}
+              <div
+                className="absolute -inset-[2px] rounded-[18px] z-[-1] opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: `conic-gradient(
+                    from ${i * 120}deg,
+                    transparent 0deg,
+                    hsl(211 96% 54% / 0.7) 60deg,
+                    hsl(211 96% 54% / 0.4) 120deg,
+                    transparent 180deg,
+                    hsl(211 96% 54% / 0.3) 240deg,
+                    transparent 360deg
+                  )`,
+                }}
+              />
+
+              {/* Glass card body */}
+              <div
+                className="relative flex flex-col items-center gap-2 sm:gap-3 px-4 py-4 sm:px-5 sm:py-6 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+                  backdropFilter: 'blur(25px) saturate(180%)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
+                }}
+              >
+                {/* Glass reflection */}
+                <div className="absolute top-0 left-0 right-0 h-1/2 rounded-t-2xl pointer-events-none"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)' }}
+                />
+                {/* Shine line */}
+                <div className="absolute top-[6px] left-3 right-3 h-[1px] rounded-full pointer-events-none"
+                  style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)' }}
+                />
+
+                <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shadow-[0_0_12px_rgba(20,136,252,0.3)]">
+                  {step.icon}
+                </div>
+                <h3 className="relative text-xs sm:text-sm font-semibold text-foreground">{step.title}</h3>
+                <p className="relative text-[11px] sm:text-xs text-muted-foreground leading-relaxed text-center">{step.desc}</p>
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-foreground">{step.title}</h3>
-              <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
             </div>
           ))}
         </motion.div>
