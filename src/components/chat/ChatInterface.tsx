@@ -140,7 +140,8 @@ export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
               full_data: payload.fullData,
               phase: payload.phaseVal,
               chat_history: payload.chatHistory as any,
-            });
+              project,
+            } as any);
             if (error) {
               console.error("Error inserting brief:", error);
               toast.error("Error al guardar el brief");
