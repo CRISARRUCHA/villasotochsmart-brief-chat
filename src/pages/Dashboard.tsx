@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon } from "lucide-react";
+import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen, ExternalLink, Copy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { CreateProjectChat } from "@/components/dashboard/CreateProjectChat";
 
 interface Brief {
   id: string;
