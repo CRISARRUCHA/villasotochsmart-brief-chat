@@ -66,13 +66,24 @@ interface StorageFile {
   created_at: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const [briefs, setBriefs] = useState<Brief[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tabView, setTabView] = useState<Record<string, TabView>>({});
   const [briefFiles, setBriefFiles] = useState<Record<string, StorageFile[]>>({});
   const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
+  const [showCreateProject, setShowCreateProject] = useState(false);
+  const [dashboardTab, setDashboardTab] = useState<"briefs" | "projects">("briefs");
   const navigate = useNavigate();
 
   useEffect(() => {
