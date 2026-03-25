@@ -94,6 +94,7 @@ const Dashboard = () => {
         return;
       }
       fetchBriefs();
+      fetchProjects();
     };
     checkAuth();
 
