@@ -47,7 +47,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
     : (INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general);
   const [messages, setMessages] = useState<DisplayMessage[]>([baseMessage]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
-    { role: "assistant", content: initialMessage.content },
+    { role: "assistant", content: baseMessage.content },
   ]);
   const [phase, setPhase] = useState<Phase>("brief");
   const [progress, setProgress] = useState(0);
