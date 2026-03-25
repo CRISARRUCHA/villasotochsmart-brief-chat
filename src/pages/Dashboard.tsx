@@ -135,8 +135,7 @@ const Dashboard = () => {
       toast.success("Proyecto eliminado");
     }
   };
-
-
+  const deleteBrief = async (id: string) => {
     const { error } = await supabase.from("briefs").delete().eq("id", id);
     if (error) {
       toast.error("Error al eliminar");
