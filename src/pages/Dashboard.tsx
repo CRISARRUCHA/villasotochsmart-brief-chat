@@ -118,7 +118,25 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const deleteBrief = async (id: string) => {
+  const fetchProjects = async () => {
+    const { data } = await supabase
+      .from("projects")
+      .select("id, name, slug, description, created_at")
+      .order("created_at", { ascending: false });
+    setProjects((data as unknown as Project[]) || []);
+  };
+
+  const deleteProject = async (id: string) => {
+    const { error } = await supabase.from("projects").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar proyecto");
+    } else {
+      setProjects(prev => prev.filter(p => p.id !== id));
+      toast.success("Proyecto eliminado");
+    }
+  };
+
+
     const { error } = await supabase.from("briefs").delete().eq("id", id);
     if (error) {
       toast.error("Error al eliminar");
