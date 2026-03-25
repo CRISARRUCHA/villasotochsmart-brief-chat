@@ -165,12 +165,12 @@ export const ParticleHero: React.FC<ParticleHeroProps> = ({
 
   return (
     <div
-      className={`relative w-full h-screen overflow-hidden bg-background ${className}`}
+      className={`relative w-full min-h-screen overflow-y-auto overflow-x-hidden bg-background ${className}`}
       onMouseMove={handlePointerMove}
       onTouchMove={handlePointerMove}
     >
       {/* Particle Animation Background */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div ref={containerRef} className="relative" style={{ width: `${rows * 1.8}rem`, height: `${rows * 1.8}rem` }} />
       </div>
 
