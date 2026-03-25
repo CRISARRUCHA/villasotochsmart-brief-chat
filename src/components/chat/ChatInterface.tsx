@@ -38,11 +38,14 @@ const PHASE2_TOPICS = 8;
 
 interface ChatInterfaceProps {
   project?: string;
+  initialMessageOverride?: string;
 }
 
-export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
-  const initialMessage = INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general;
-  const [messages, setMessages] = useState<DisplayMessage[]>([initialMessage]);
+export const ChatInterface = ({ project = "general", initialMessageOverride }: ChatInterfaceProps) => {
+  const baseMessage = initialMessageOverride
+    ? { role: "assistant" as const, content: initialMessageOverride }
+    : (INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general);
+  const [messages, setMessages] = useState<DisplayMessage[]>([baseMessage]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
     { role: "assistant", content: initialMessage.content },
   ]);
