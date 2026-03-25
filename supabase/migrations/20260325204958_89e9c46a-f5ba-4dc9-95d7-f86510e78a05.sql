@@ -1,0 +1,1 @@
+ALTER TABLE public.briefs ADD COLUMN project text DEFAULT 'general';
