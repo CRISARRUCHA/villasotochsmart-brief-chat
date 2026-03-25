@@ -38,13 +38,16 @@ const PHASE2_TOPICS = 8;
 
 interface ChatInterfaceProps {
   project?: string;
+  initialMessageOverride?: string;
 }
 
-export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
-  const initialMessage = INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general;
-  const [messages, setMessages] = useState<DisplayMessage[]>([initialMessage]);
+export const ChatInterface = ({ project = "general", initialMessageOverride }: ChatInterfaceProps) => {
+  const baseMessage = initialMessageOverride
+    ? { role: "assistant" as const, content: initialMessageOverride }
+    : (INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general);
+  const [messages, setMessages] = useState<DisplayMessage[]>([baseMessage]);
   const [apiMessages, setApiMessages] = useState<Message[]>([
-    { role: "assistant", content: initialMessage.content },
+    { role: "assistant", content: baseMessage.content },
   ]);
   const [phase, setPhase] = useState<Phase>("brief");
   const [progress, setProgress] = useState(0);
@@ -56,7 +59,7 @@ export const ChatInterface = ({ project = "general" }: ChatInterfaceProps) => {
   const briefIdRef = useRef<string | null>(null);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const fullChatHistoryRef = useRef<Message[]>([
-    { role: "assistant", content: initialMessage.content },
+    { role: "assistant", content: baseMessage.content },
   ]);
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);

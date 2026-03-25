@@ -68,6 +68,57 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          initial_message: string
+          landing_cta: string | null
+          landing_subtitle: string | null
+          landing_title: string | null
+          name: string
+          phase1_prompt: string
+          phase2_prompt: string
+          slug: string
+          steps: Json | null
+          tips: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          initial_message: string
+          landing_cta?: string | null
+          landing_subtitle?: string | null
+          landing_title?: string | null
+          name: string
+          phase1_prompt: string
+          phase2_prompt: string
+          slug: string
+          steps?: Json | null
+          tips?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          initial_message?: string
+          landing_cta?: string | null
+          landing_subtitle?: string | null
+          landing_title?: string | null
+          name?: string
+          phase1_prompt?: string
+          phase2_prompt?: string
+          slug?: string
+          steps?: Json | null
+          tips?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

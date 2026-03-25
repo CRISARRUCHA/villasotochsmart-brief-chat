@@ -7,8 +7,8 @@ import Home from "./pages/Home.tsx";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
-import VillasOtoch from "./pages/VillasOtoch.tsx";
-import VillasOtochChat from "./pages/VillasOtochChat.tsx";
+import ProjectLanding from "./pages/ProjectLanding.tsx";
+import ProjectChat from "./pages/ProjectChat.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,10 +22,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/chat" element={<Index />} />
-          <Route path="/villas-otoch" element={<VillasOtoch />} />
-          <Route path="/villas-otoch/chat" element={<VillasOtochChat />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          {/* Dynamic project routes */}
+          <Route path="/p/:slug" element={<ProjectLanding />} />
+          <Route path="/p/:slug/chat" element={<ProjectChat />} />
+          {/* Legacy routes */}
+          <Route path="/villas-otoch" element={<ProjectLanding />} />
+          <Route path="/villas-otoch/chat" element={<ProjectChat />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

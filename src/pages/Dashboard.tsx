@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon } from "lucide-react";
+import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen, ExternalLink, Copy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { CreateProjectChat } from "@/components/dashboard/CreateProjectChat";
 
 interface Brief {
   id: string;
@@ -65,13 +66,24 @@ interface StorageFile {
   created_at: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const [briefs, setBriefs] = useState<Brief[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tabView, setTabView] = useState<Record<string, TabView>>({});
   const [briefFiles, setBriefFiles] = useState<Record<string, StorageFile[]>>({});
   const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
+  const [showCreateProject, setShowCreateProject] = useState(false);
+  const [dashboardTab, setDashboardTab] = useState<"briefs" | "projects">("briefs");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,6 +94,7 @@ const Dashboard = () => {
         return;
       }
       fetchBriefs();
+      fetchProjects();
     };
     checkAuth();
 
@@ -105,7 +118,25 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const deleteBrief = async (id: string) => {
+  const fetchProjects = async () => {
+    const { data } = await supabase
+      .from("projects")
+      .select("id, name, slug, description, created_at")
+      .order("created_at", { ascending: false });
+    setProjects((data as unknown as Project[]) || []);
+  };
+
+  const deleteProject = async (id: string) => {
+    const { error } = await supabase.from("projects").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar proyecto");
+    } else {
+      setProjects(prev => prev.filter(p => p.id !== id));
+      toast.success("Proyecto eliminado");
+    }
+  };
+
+
     const { error } = await supabase.from("briefs").delete().eq("id", id);
     if (error) {
       toast.error("Error al eliminar");
@@ -169,6 +200,12 @@ const Dashboard = () => {
     return "Sin nombre";
   };
 
+  const copyProjectUrl = (slug: string) => {
+    const url = `${window.location.origin}/p/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast.success("URL copiada al portapapeles");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 sm:px-6 py-4">
@@ -179,7 +216,7 @@ const Dashboard = () => {
             </div>
             <div>
               <h1 className="text-sm font-semibold text-foreground">Brief IA</h1>
-              <p className="text-xs text-muted-foreground">Briefs recibidos</p>
+              <p className="text-xs text-muted-foreground">Panel de administración</p>
             </div>
           </div>
           <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -188,8 +225,83 @@ const Dashboard = () => {
         </div>
       </header>
 
+      {/* Dashboard Tabs */}
+      <div className="border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-1">
+          <button
+            onClick={() => setDashboardTab("briefs")}
+            className={`flex items-center gap-1.5 text-sm px-4 py-3 border-b-2 transition-colors ${dashboardTab === "briefs" ? "border-primary text-foreground font-medium" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            <MessageSquare size={14} /> Briefs
+          </button>
+          <button
+            onClick={() => setDashboardTab("projects")}
+            className={`flex items-center gap-1.5 text-sm px-4 py-3 border-b-2 transition-colors ${dashboardTab === "projects" ? "border-primary text-foreground font-medium" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            <FolderOpen size={14} /> Proyectos
+          </button>
+        </div>
+      </div>
+
       <main className="max-w-5xl mx-auto p-4 sm:p-6">
-        {loading ? (
+        {dashboardTab === "projects" ? (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-foreground">Proyectos</h2>
+              <button
+                onClick={() => setShowCreateProject(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:brightness-110 transition-all"
+              >
+                <Plus size={14} /> Nuevo proyecto
+              </button>
+            </div>
+
+            {projects.length === 0 ? (
+              <div className="text-center py-20 text-muted-foreground text-sm">
+                No hay proyectos aún. Crea uno con IA.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {projects.map(project => (
+                  <div key={project.id} className="border border-border rounded-2xl bg-background p-4 sm:p-5 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{project.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{project.description || project.slug}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        /p/{project.slug}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => copyProjectUrl(project.slug)}
+                        className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                        title="Copiar URL"
+                      >
+                        <Copy size={14} />
+                      </button>
+                      <a
+                        href={`/p/${project.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                        title="Abrir landing"
+                      >
+                        <ExternalLink size={14} />
+                      </a>
+                      <button
+                        onClick={() => deleteProject(project.id)}
+                        className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : loading ? (
           <div className="text-center py-20 text-muted-foreground text-sm">Cargando...</div>
         ) : briefs.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground text-sm">No hay briefs guardados aún.</div>
@@ -379,6 +491,13 @@ const Dashboard = () => {
           </div>
         )}
       </main>
+
+      {showCreateProject && (
+        <CreateProjectChat
+          onProjectCreated={() => { setShowCreateProject(false); fetchProjects(); }}
+          onClose={() => setShowCreateProject(false)}
+        />
+      )}
     </div>
   );
 };
