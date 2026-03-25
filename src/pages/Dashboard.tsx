@@ -491,6 +491,13 @@ const Dashboard = () => {
           </div>
         )}
       </main>
+
+      {showCreateProject && (
+        <CreateProjectChat
+          onProjectCreated={() => { setShowCreateProject(false); fetchProjects(); }}
+          onClose={() => setShowCreateProject(false)}
+        />
+      )}
     </div>
   );
 };
