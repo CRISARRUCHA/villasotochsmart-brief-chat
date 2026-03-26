@@ -72,6 +72,12 @@ interface Project {
   name: string;
   slug: string;
   description: string | null;
+  phase1_prompt: string;
+  phase2_prompt: string;
+  initial_message: string;
+  landing_title: string | null;
+  landing_subtitle: string | null;
+  landing_cta: string | null;
   created_at: string;
 }
 
