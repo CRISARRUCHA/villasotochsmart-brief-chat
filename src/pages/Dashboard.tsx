@@ -512,6 +512,14 @@ const Dashboard = () => {
           onClose={() => setShowCreateProject(false)}
         />
       )}
+
+      {editingProject && (
+        <EditProjectModal
+          project={editingProject}
+          onSaved={() => { setEditingProject(null); fetchProjects(); }}
+          onClose={() => setEditingProject(null)}
+        />
+      )}
     </div>
   );
 };
