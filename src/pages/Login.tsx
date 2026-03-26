@@ -10,29 +10,17 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [isSignup, setIsSignup] = useState(false);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (isSignup) {
-      const { error } = await supabase.auth.signUp({ email, password });
-      setLoading(false);
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Cuenta creada. Iniciando sesión...");
-        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-        if (!loginError) navigate("/dashboard");
-      }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      setLoading(false);
-      if (error) {
-        toast.error(error.message);
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     }
   };
 
@@ -72,14 +60,7 @@ const Login = () => {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {loading ? (isSignup ? "Creando..." : "Entrando...") : (isSignup ? "Crear cuenta" : "Entrar")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsSignup(!isSignup)}
-            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {isSignup ? "¿Ya tienes cuenta? Inicia sesión" : "Crear cuenta nueva"}
+            {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
       </div>
