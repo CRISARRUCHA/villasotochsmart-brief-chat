@@ -286,6 +286,13 @@ const Dashboard = () => {
                       >
                         <Copy size={14} />
                       </button>
+                      <button
+                        onClick={() => setEditingProject(project)}
+                        className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                        title="Editar"
+                      >
+                        <Pencil size={14} />
+                      </button>
                       <a
                         href={`/p/${project.slug}`}
                         target="_blank"
