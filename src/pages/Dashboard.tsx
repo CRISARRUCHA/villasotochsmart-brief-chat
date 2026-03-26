@@ -123,7 +123,7 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("projects")
-      .select("id, name, slug, description, created_at")
+      .select("id, name, slug, description, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, created_at")
       .order("created_at", { ascending: false });
     setProjects((data as unknown as Project[]) || []);
   };
