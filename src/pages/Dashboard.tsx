@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen, ExternalLink, Copy } from "lucide-react";
+import { LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp, User, Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen, ExternalLink, Copy, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { CreateProjectChat } from "@/components/dashboard/CreateProjectChat";
+import { EditProjectModal } from "@/components/dashboard/EditProjectModal";
 
 interface Brief {
   id: string;
@@ -71,6 +72,12 @@ interface Project {
   name: string;
   slug: string;
   description: string | null;
+  phase1_prompt: string;
+  phase2_prompt: string;
+  initial_message: string;
+  landing_title: string | null;
+  landing_subtitle: string | null;
+  landing_cta: string | null;
   created_at: string;
 }
 
@@ -83,6 +90,7 @@ const Dashboard = () => {
   const [briefFiles, setBriefFiles] = useState<Record<string, StorageFile[]>>({});
   const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
   const [showCreateProject, setShowCreateProject] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
   const [dashboardTab, setDashboardTab] = useState<"briefs" | "projects">("briefs");
   const navigate = useNavigate();
 
@@ -121,7 +129,7 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("projects")
-      .select("id, name, slug, description, created_at")
+      .select("id, name, slug, description, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, created_at")
       .order("created_at", { ascending: false });
     setProjects((data as unknown as Project[]) || []);
   };
@@ -277,6 +285,13 @@ const Dashboard = () => {
                         title="Copiar URL"
                       >
                         <Copy size={14} />
+                      </button>
+                      <button
+                        onClick={() => setEditingProject(project)}
+                        className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                        title="Editar"
+                      >
+                        <Pencil size={14} />
                       </button>
                       <a
                         href={`/p/${project.slug}`}
@@ -495,6 +510,14 @@ const Dashboard = () => {
         <CreateProjectChat
           onProjectCreated={() => { setShowCreateProject(false); fetchProjects(); }}
           onClose={() => setShowCreateProject(false)}
+        />
+      )}
+
+      {editingProject && (
+        <EditProjectModal
+          project={editingProject}
+          onSaved={() => { setEditingProject(null); fetchProjects(); }}
+          onClose={() => setEditingProject(null)}
         />
       )}
     </div>
