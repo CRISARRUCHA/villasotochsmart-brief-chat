@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import logoWhite from "@/assets/logo-white.png";
 import { toast } from "sonner";
 
 const Login = () => {
