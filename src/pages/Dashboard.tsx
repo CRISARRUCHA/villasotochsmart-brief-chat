@@ -218,8 +218,8 @@ const Dashboard = () => {
       <header className="border-b border-border px-4 sm:px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-              <span className="text-background text-xs font-semibold">B</span>
+            <div className="h-8 px-3 rounded-lg bg-foreground flex items-center justify-center">
+              <span className="text-background text-xs font-semibold whitespace-nowrap">Im-Pulsa Web</span>
             </div>
             <div>
               <h1 className="text-sm font-semibold text-foreground">Brief IA</h1>
