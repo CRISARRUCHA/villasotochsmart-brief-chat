@@ -39,9 +39,7 @@ const Login = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-1">
-          <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center mx-auto mb-4">
-            <span className="text-background text-sm font-semibold">B</span>
-          </div>
+          <img src={logoWhite} alt="Im-Pulsa Web" className="w-10 h-10 mx-auto mb-4" />
           <h1 className="text-xl font-semibold text-foreground">Brief IA</h1>
           <p className="text-sm text-muted-foreground">Panel de administración</p>
         </div>
