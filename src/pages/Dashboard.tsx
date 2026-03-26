@@ -84,6 +84,7 @@ const Dashboard = () => {
   const [briefFiles, setBriefFiles] = useState<Record<string, StorageFile[]>>({});
   const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
   const [showCreateProject, setShowCreateProject] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
   const [dashboardTab, setDashboardTab] = useState<"briefs" | "projects">("briefs");
   const navigate = useNavigate();
 
