@@ -36,6 +36,15 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
   const cleanDisplay = (text: string) =>
     text.replace(/\{"suggestions".*$/s, "").replace(/\{"action".*$/s, "").trim();
 
+  const extractBalancedJson = (str: string, start: number): string | null => {
+    let depth = 0;
+    for (let i = start; i < str.length; i++) {
+      if (str[i] === '{') depth++;
+      else if (str[i] === '}') { depth--; if (depth === 0) return str.slice(start, i + 1); }
+    }
+    return null;
+  };
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -89,16 +98,19 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
         }
       }
 
-      // Check for action
-      const actionMatch = assistantContent.match(/\{"action"\s*:\s*"create_project"[\s\S]*$/);
-      if (actionMatch) {
-        try {
-          const actionJson = JSON.parse(actionMatch[0]);
-          if (actionJson.action === "create_project" && actionJson.data) {
-            await saveProject(actionJson.data);
+      // Check for action - use balanced brace extraction for robustness
+      const actionStart = assistantContent.indexOf('{"action"');
+      if (actionStart !== -1) {
+        const jsonStr = extractBalancedJson(assistantContent, actionStart);
+        if (jsonStr) {
+          try {
+            const actionJson = JSON.parse(jsonStr);
+            if (actionJson.action === "create_project" && actionJson.data) {
+              await saveProject(actionJson.data);
+            }
+          } catch (e) {
+            console.error("Error parsing action:", e, "\nJSON attempted:", jsonStr.slice(0, 200));
           }
-        } catch (e) {
-          console.error("Error parsing action:", e);
         }
       }
 
