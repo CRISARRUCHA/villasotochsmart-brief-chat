@@ -62,7 +62,7 @@ const ProjectLanding = () => {
     icon: ICON_MAP[s.icon] || <MessageSquare className="size-6" />,
     title: s.title,
     desc: s.desc,
-    color: s.color || "rgba(20, 136, 252, 0.8)",
+    color: "rgba(20, 136, 252, 0.8)",
   }));
 
   const tips: string[] = project.tips || [];
