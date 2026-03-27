@@ -26,26 +26,57 @@ TEMAS A CUBRIR:
 
 REGLAS:
 - Después de CADA respuesta incluye: {"suggestions":["opción 1","opción 2","opción 3"]}
-- Cuando tengas toda la info, genera el JSON final.
-
-FORMATO DEL JSON FINAL:
-Cuando tengas toda la información, responde SOLO con el JSON. NO incluyas texto antes ni después.
-IMPORTANTE PARA JSON VÁLIDO:
-- Escapa TODAS las comillas dobles dentro de strings con backslash: \\"
-- Escapa TODOS los saltos de línea dentro de strings con: \\n
-- NO uses comillas dobles sin escapar dentro de valores string
-- Verifica que el JSON sea válido antes de enviarlo
-
-El JSON debe tener esta estructura exacta:
-{"action":"create_project","data":{"name":"...","slug":"...","description":"...","phase1_prompt":"...","phase2_prompt":"...","initial_message":"...","landing_title":"...","landing_subtitle":"...","landing_cta":"...","steps":[{"icon":"MessageSquare","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"},{"icon":"Target","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"},{"icon":"CheckCircle","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"}],"tips":["tip1","tip2","tip3","tip4"]}}
+- Cuando tengas toda la información necesaria, LLAMA la función create_project con todos los datos. NO intentes generar JSON manualmente, usa la función.
 
 IMPORTANTE sobre los prompts generados:
-- El phase1_prompt debe ser conciso pero completo. Debe terminar indicando que al cubrir todos los temas responda SOLO con: {"action":"generate_brief","data":{...}}
-- El phase2_prompt debe ser conciso. DEBE contener el placeholder {{BRIEF_DATA}}. Debe terminar indicando que responda SOLO con: {"action":"generate_full_brief","data":{...}}
+- El phase1_prompt debe terminar indicando que después de cubrir todos los temas responda SOLO con: {"action":"generate_brief","data":{...}}
+- El phase2_prompt debe terminar indicando que responda SOLO con: {"action":"generate_full_brief","data":{...}}
 - Ambos prompts deben indicar incluir suggestion chips después de cada respuesta
+- El phase2_prompt DEBE contener el placeholder {{BRIEF_DATA}} para recibir los datos de la fase 1
 - Los prompts deben estar en el idioma apropiado según lo discutido
-- Incluye las reglas de comunicación (breve, una pregunta a la vez, no preguntar sobre hosting/dominio/técnico)
-- Mantén los prompts lo más concisos posible, usa listas en vez de párrafos largos`;
+- Incluye las reglas de comunicación (breve, una pregunta a la vez, no preguntar sobre hosting/dominio/técnico)`;
+
+const CREATE_PROJECT_TOOL = {
+  type: "function",
+  function: {
+    name: "create_project",
+    description: "Crea un nuevo proyecto de brief personalizado con toda la configuración necesaria",
+    parameters: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "Nombre del proyecto" },
+        slug: { type: "string", description: "Slug URL-friendly" },
+        description: { type: "string", description: "Descripción breve del proyecto" },
+        phase1_prompt: { type: "string", description: "Prompt completo para la fase 1 del brief" },
+        phase2_prompt: { type: "string", description: "Prompt completo para la fase 2. DEBE contener {{BRIEF_DATA}} como placeholder" },
+        initial_message: { type: "string", description: "Mensaje inicial de bienvenida del chatbot" },
+        landing_title: { type: "string", description: "Título para la landing page" },
+        landing_subtitle: { type: "string", description: "Subtítulo para la landing page" },
+        landing_cta: { type: "string", description: "Texto del botón CTA" },
+        steps: {
+          type: "array",
+          description: "3 pasos para mostrar en la landing",
+          items: {
+            type: "object",
+            properties: {
+              icon: { type: "string", enum: ["MessageSquare", "Target", "CheckCircle", "Lightbulb", "Users", "FileText"] },
+              title: { type: "string" },
+              desc: { type: "string" },
+              color: { type: "string" }
+            },
+            required: ["icon", "title", "desc", "color"]
+          }
+        },
+        tips: {
+          type: "array",
+          description: "4 tips para el usuario",
+          items: { type: "string" }
+        }
+      },
+      required: ["name", "slug", "description", "phase1_prompt", "phase2_prompt", "initial_message", "landing_title", "landing_subtitle", "landing_cta", "steps", "tips"]
+    }
+  }
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -69,10 +100,21 @@ serve(async (req) => {
         ],
         stream: true,
         max_tokens: 8192,
+        tools: [CREATE_PROJECT_TOOL],
       }),
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit excedido, intenta de nuevo en un momento." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Créditos agotados." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       return new Response(JSON.stringify({ error: "Error del servicio de IA" }), {
