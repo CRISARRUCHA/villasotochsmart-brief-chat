@@ -36,15 +36,6 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
   const cleanDisplay = (text: string) =>
     text.replace(/\{"suggestions".*$/s, "").replace(/\{"action".*$/s, "").trim();
 
-  const extractBalancedJson = (str: string, start: number): string | null => {
-    let depth = 0;
-    for (let i = start; i < str.length; i++) {
-      if (str[i] === '{') depth++;
-      else if (str[i] === '}') { depth--; if (depth === 0) return str.slice(start, i + 1); }
-    }
-    return null;
-  };
-
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -57,6 +48,8 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
     setIsLoading(true);
 
     let assistantContent = "";
+    let toolCallArgs = "";
+    let toolCallDetected = false;
 
     try {
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
@@ -81,7 +74,21 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
           if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
           try {
             const parsed = JSON.parse(line.slice(6));
-            const delta = parsed.choices?.[0]?.delta?.content;
+            const choice = parsed.choices?.[0];
+            
+            // Check for tool call
+            if (choice?.delta?.tool_calls) {
+              toolCallDetected = true;
+              for (const tc of choice.delta.tool_calls) {
+                if (tc.function?.arguments) {
+                  toolCallArgs += tc.function.arguments;
+                }
+              }
+              continue;
+            }
+
+            // Regular content
+            const delta = choice?.delta?.content;
             if (delta) {
               assistantContent += delta;
               const display = cleanDisplay(assistantContent);
@@ -98,95 +105,62 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
         }
       }
 
-      // Check for action - use balanced brace extraction for robustness
-      const actionStart = assistantContent.indexOf('{"action"');
-      if (actionStart !== -1) {
-        let parsed = false;
-        const jsonStr = extractBalancedJson(assistantContent, actionStart);
-        if (jsonStr) {
-          try {
-            const actionJson = JSON.parse(jsonStr);
-            if (actionJson.action === "create_project" && actionJson.data) {
-              await saveProject(actionJson.data);
-              parsed = true;
-            }
-          } catch (e) {
-            console.error("Error parsing action, will retry:", e);
-          }
-        }
-
-        // If JSON was malformed/truncated, ask the AI to regenerate just the JSON
-        if (!parsed) {
-          console.log("JSON parse failed, requesting regeneration...");
-          const retryMessages = [
-            ...newApiMessages,
-            { role: "assistant", content: assistantContent },
-            { role: "user", content: "El JSON que generaste tiene errores de formato. Por favor regenera SOLO el JSON completo con la estructura {\"action\":\"create_project\",\"data\":{...}}. Asegúrate de escapar comillas y que sea JSON válido. No incluyas texto adicional." },
-          ];
-
-          setMessages(prev => [...prev.filter(m => m.role !== "assistant" || prev.indexOf(m) < prev.length - 1),
-            { role: "assistant", content: "⏳ Regenerando configuración del proyecto..." }]);
-          scrollToBottom();
-
-          const retryRes = await fetch(`https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/create-project`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages: retryMessages }),
+      // Handle tool call result (structured output - guaranteed valid JSON)
+      if (toolCallDetected && toolCallArgs) {
+        try {
+          const projectData = JSON.parse(toolCallArgs);
+          // Show saving message
+          setMessages(prev => {
+            const filtered = prev.filter((m, i) => !(i === prev.length - 1 && m.role === "assistant" && !m.content.trim()));
+            return [...filtered, { role: "assistant", content: "✅ **¡Configuración generada!** Guardando proyecto..." }];
           });
-
-          if (retryRes.ok && retryRes.body) {
-            let retryContent = "";
-            const retryReader = retryRes.body.getReader();
-            const retryDecoder = new TextDecoder();
-            while (true) {
-              const { done, value } = await retryReader.read();
-              if (done) break;
-              const chunk = retryDecoder.decode(value, { stream: true });
-              for (const line of chunk.split("\n")) {
-                if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
-                try {
-                  const p = JSON.parse(line.slice(6));
-                  const d = p.choices?.[0]?.delta?.content;
-                  if (d) retryContent += d;
-                } catch {}
+          scrollToBottom();
+          await saveProject(projectData);
+        } catch (e) {
+          console.error("Error parsing tool call args:", e, toolCallArgs.slice(0, 300));
+          toast.error("Error al procesar la configuración del proyecto.");
+        }
+      } else if (!toolCallDetected) {
+        // Fallback: check for inline JSON action (legacy)
+        const actionStart = assistantContent.indexOf('{"action"');
+        if (actionStart !== -1) {
+          const jsonStr = extractBalancedJson(assistantContent, actionStart);
+          if (jsonStr) {
+            try {
+              const actionJson = JSON.parse(jsonStr);
+              if (actionJson.action === "create_project" && actionJson.data) {
+                await saveProject(actionJson.data);
               }
+            } catch (e) {
+              console.error("Fallback JSON parse failed:", e);
             }
-
-            const retryStart = retryContent.indexOf('{"action"');
-            if (retryStart !== -1) {
-              const retryJson = extractBalancedJson(retryContent, retryStart);
-              if (retryJson) {
-                try {
-                  const actionJson = JSON.parse(retryJson);
-                  if (actionJson.action === "create_project" && actionJson.data) {
-                    await saveProject(actionJson.data);
-                    parsed = true;
-                  }
-                } catch (e2) {
-                  console.error("Retry also failed:", e2);
-                }
-              }
-            }
-          }
-
-          if (!parsed) {
-            toast.error("No se pudo generar la configuración. Intenta decir 'genera el JSON de nuevo'.");
           }
         }
       }
 
       const finalDisplay = cleanDisplay(assistantContent);
-      setMessages(prev => {
-        const withoutStreaming = prev.filter((_, i) => !(i === prev.length - 1 && prev[i].role === "assistant"));
-        return [...withoutStreaming, { role: "assistant", content: finalDisplay }];
-      });
-      setApiMessages(prev => [...prev, { role: "assistant", content: assistantContent }]);
+      if (finalDisplay) {
+        setMessages(prev => {
+          const withoutStreaming = prev.filter((_, i) => !(i === prev.length - 1 && prev[i].role === "assistant"));
+          return [...withoutStreaming, { role: "assistant", content: finalDisplay }];
+        });
+      }
+      setApiMessages(prev => [...prev, { role: "assistant", content: assistantContent || "(tool call)" }]);
     } catch (e) {
       console.error(e);
       toast.error("Error al conectar con el asistente");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const extractBalancedJson = (str: string, start: number): string | null => {
+    let depth = 0;
+    for (let i = start; i < str.length; i++) {
+      if (str[i] === '{') depth++;
+      else if (str[i] === '}') { depth--; if (depth === 0) return str.slice(start, i + 1); }
+    }
+    return null;
   };
 
   const saveProject = async (data: any) => {
