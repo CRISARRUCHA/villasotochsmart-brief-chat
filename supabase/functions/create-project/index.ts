@@ -21,21 +21,31 @@ TEMAS A CUBRIR:
 6. temas_fase2 — Lista de temas para la segunda fase (contenido, diseño, etc.) (mínimo 6, máximo 8)
 7. tono_chatbot — Cómo debe comunicarse el chatbot (profesional, cercano, institucional, etc.)
 8. recomendaciones — Si el chatbot debe hacer recomendaciones proactivas de servicios (Meta Ads, SEO, etc.)
-9. mensaje_inicial — Cómo debe presentarse el chatbot al usuario
+9. mensaje_inicial — Cómo debe presentarse el chatbot al usuario (nombre del asistente, contexto breve)
 10. landing_info — Título y subtítulo para la landing page del proyecto
 
 REGLAS:
 - Después de CADA respuesta incluye: {"suggestions":["opción 1","opción 2","opción 3"]}
-- Cuando tengas toda la info, genera los prompts completos y responde SOLO con este JSON:
-{"action":"create_project","data":{"name":"...","slug":"...","description":"...","phase1_prompt":"[prompt completo para fase 1]","phase2_prompt":"[prompt completo para fase 2, debe incluir {{BRIEF_DATA}} como placeholder]","initial_message":"[mensaje inicial del chatbot]","landing_title":"...","landing_subtitle":"...","landing_cta":"...","steps":[{"icon":"MessageSquare","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"},{"icon":"Target","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"},{"icon":"CheckCircle","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"}],"tips":["tip1","tip2","tip3","tip4"]}}
+- Cuando tengas toda la info, genera el JSON final.
+
+FORMATO DEL JSON FINAL:
+Cuando tengas toda la información, responde SOLO con el JSON. NO incluyas texto antes ni después.
+IMPORTANTE PARA JSON VÁLIDO:
+- Escapa TODAS las comillas dobles dentro de strings con backslash: \\"
+- Escapa TODOS los saltos de línea dentro de strings con: \\n
+- NO uses comillas dobles sin escapar dentro de valores string
+- Verifica que el JSON sea válido antes de enviarlo
+
+El JSON debe tener esta estructura exacta:
+{"action":"create_project","data":{"name":"...","slug":"...","description":"...","phase1_prompt":"...","phase2_prompt":"...","initial_message":"...","landing_title":"...","landing_subtitle":"...","landing_cta":"...","steps":[{"icon":"MessageSquare","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"},{"icon":"Target","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"},{"icon":"CheckCircle","title":"...","desc":"...","color":"rgba(20, 136, 252, 0.8)"}],"tips":["tip1","tip2","tip3","tip4"]}}
 
 IMPORTANTE sobre los prompts generados:
-- El phase1_prompt debe terminar indicando que después de cubrir todos los temas responda SOLO con: {"action":"generate_brief","data":{...}}
-- El phase2_prompt debe terminar indicando que responda SOLO con: {"action":"generate_full_brief","data":{...}}
+- El phase1_prompt debe ser conciso pero completo. Debe terminar indicando que al cubrir todos los temas responda SOLO con: {"action":"generate_brief","data":{...}}
+- El phase2_prompt debe ser conciso. DEBE contener el placeholder {{BRIEF_DATA}}. Debe terminar indicando que responda SOLO con: {"action":"generate_full_brief","data":{...}}
 - Ambos prompts deben indicar incluir suggestion chips después de cada respuesta
-- El phase2_prompt DEBE contener el placeholder {{BRIEF_DATA}} para recibir los datos de la fase 1
-- Los prompts deben estar en español
-- Incluye las reglas de comunicación (breve, una pregunta a la vez, no preguntar sobre hosting/dominio/técnico)`;
+- Los prompts deben estar en el idioma apropiado según lo discutido
+- Incluye las reglas de comunicación (breve, una pregunta a la vez, no preguntar sobre hosting/dominio/técnico)
+- Mantén los prompts lo más concisos posible, usa listas en vez de párrafos largos`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -58,6 +68,7 @@ serve(async (req) => {
           ...messages,
         ],
         stream: true,
+        max_tokens: 8192,
       }),
     });
 

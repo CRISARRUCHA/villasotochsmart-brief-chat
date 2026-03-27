@@ -101,15 +101,76 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
       // Check for action - use balanced brace extraction for robustness
       const actionStart = assistantContent.indexOf('{"action"');
       if (actionStart !== -1) {
+        let parsed = false;
         const jsonStr = extractBalancedJson(assistantContent, actionStart);
         if (jsonStr) {
           try {
             const actionJson = JSON.parse(jsonStr);
             if (actionJson.action === "create_project" && actionJson.data) {
               await saveProject(actionJson.data);
+              parsed = true;
             }
           } catch (e) {
-            console.error("Error parsing action:", e, "\nJSON attempted:", jsonStr.slice(0, 200));
+            console.error("Error parsing action, will retry:", e);
+          }
+        }
+
+        // If JSON was malformed/truncated, ask the AI to regenerate just the JSON
+        if (!parsed) {
+          console.log("JSON parse failed, requesting regeneration...");
+          const retryMessages = [
+            ...newApiMessages,
+            { role: "assistant", content: assistantContent },
+            { role: "user", content: "El JSON que generaste tiene errores de formato. Por favor regenera SOLO el JSON completo con la estructura {\"action\":\"create_project\",\"data\":{...}}. Asegúrate de escapar comillas y que sea JSON válido. No incluyas texto adicional." },
+          ];
+
+          setMessages(prev => [...prev.filter(m => m.role !== "assistant" || prev.indexOf(m) < prev.length - 1),
+            { role: "assistant", content: "⏳ Regenerando configuración del proyecto..." }]);
+          scrollToBottom();
+
+          const retryRes = await fetch(`https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/create-project`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages: retryMessages }),
+          });
+
+          if (retryRes.ok && retryRes.body) {
+            let retryContent = "";
+            const retryReader = retryRes.body.getReader();
+            const retryDecoder = new TextDecoder();
+            while (true) {
+              const { done, value } = await retryReader.read();
+              if (done) break;
+              const chunk = retryDecoder.decode(value, { stream: true });
+              for (const line of chunk.split("\n")) {
+                if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+                try {
+                  const p = JSON.parse(line.slice(6));
+                  const d = p.choices?.[0]?.delta?.content;
+                  if (d) retryContent += d;
+                } catch {}
+              }
+            }
+
+            const retryStart = retryContent.indexOf('{"action"');
+            if (retryStart !== -1) {
+              const retryJson = extractBalancedJson(retryContent, retryStart);
+              if (retryJson) {
+                try {
+                  const actionJson = JSON.parse(retryJson);
+                  if (actionJson.action === "create_project" && actionJson.data) {
+                    await saveProject(actionJson.data);
+                    parsed = true;
+                  }
+                } catch (e2) {
+                  console.error("Retry also failed:", e2);
+                }
+              }
+            }
+          }
+
+          if (!parsed) {
+            toast.error("No se pudo generar la configuración. Intenta decir 'genera el JSON de nuevo'.");
           }
         }
       }
