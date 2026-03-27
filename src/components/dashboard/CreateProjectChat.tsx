@@ -36,6 +36,15 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
   const cleanDisplay = (text: string) =>
     text.replace(/\{"suggestions".*$/s, "").replace(/\{"action".*$/s, "").trim();
 
+  const extractBalancedJson = (str: string, start: number): string | null => {
+    let depth = 0;
+    for (let i = start; i < str.length; i++) {
+      if (str[i] === '{') depth++;
+      else if (str[i] === '}') { depth--; if (depth === 0) return str.slice(start, i + 1); }
+    }
+    return null;
+  };
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
 
