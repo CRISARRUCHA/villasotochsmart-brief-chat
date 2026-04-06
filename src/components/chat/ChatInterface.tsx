@@ -39,9 +39,10 @@ export interface ChatInterfaceProps {
   singlePhase?: boolean;
   primaryColor?: string;
   accentColor?: string;
+  showSuggestions?: boolean;
 }
 
-export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor }: ChatInterfaceProps) => {
+export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true }: ChatInterfaceProps) => {
   const storageKey = `chat-session-${project}`;
 
   const getInitialState = () => {
