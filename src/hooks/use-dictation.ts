@@ -47,18 +47,13 @@ export function useDictation({ lang = "es-MX", onResult, onProcessed, onEnd }: U
 
     recognition.onresult = (event: any) => {
       let finalTranscript = "";
-      let interim = "";
       for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcript;
-        } else {
-          interim = transcript;
         }
       }
       rawTranscriptRef.current = finalTranscript;
-      // Show raw text while recording
-      onResult?.(finalTranscript + interim);
     };
 
     recognition.onend = () => {
