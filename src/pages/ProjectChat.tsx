@@ -10,6 +10,12 @@ interface ProjectConfig {
   primary_color: string | null;
   accent_color: string | null;
   show_suggestions: boolean;
+  completion_title: string | null;
+  completion_subtitle: string | null;
+  completion_next_label: string | null;
+  completion_next_text: string | null;
+  completion_link_url: string | null;
+  completion_link_text: string | null;
 }
 
 const ProjectChat = () => {
@@ -24,7 +30,7 @@ const ProjectChat = () => {
       if (!slug) return;
       const { data } = await supabase
         .from("projects")
-        .select("initial_message, slug, prompt, primary_color, accent_color, show_suggestions")
+        .select("initial_message, slug, prompt, primary_color, accent_color, show_suggestions, completion_title, completion_subtitle, completion_next_label, completion_next_text, completion_link_url, completion_link_text")
         .eq("slug", slug)
         .single();
       if (data) {
@@ -54,6 +60,12 @@ const ProjectChat = () => {
       primaryColor={config.primary_color || undefined}
       accentColor={config.accent_color || undefined}
       showSuggestions={config.show_suggestions}
+      completionTitle={config.completion_title || undefined}
+      completionSubtitle={config.completion_subtitle || undefined}
+      completionNextLabel={config.completion_next_label || undefined}
+      completionNextText={config.completion_next_text || undefined}
+      completionLinkUrl={config.completion_link_url || undefined}
+      completionLinkText={config.completion_link_text || undefined}
     />
   );
 };

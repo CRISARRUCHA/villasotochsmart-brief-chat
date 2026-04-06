@@ -40,9 +40,15 @@ export interface ChatInterfaceProps {
   primaryColor?: string;
   accentColor?: string;
   showSuggestions?: boolean;
+  completionTitle?: string;
+  completionSubtitle?: string;
+  completionNextLabel?: string;
+  completionNextText?: string;
+  completionLinkUrl?: string;
+  completionLinkText?: string;
 }
 
-export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true }: ChatInterfaceProps) => {
+export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true, completionTitle, completionSubtitle, completionNextLabel, completionNextText, completionLinkUrl, completionLinkText }: ChatInterfaceProps) => {
   const storageKey = `chat-session-${project}`;
 
   const getInitialState = () => {
@@ -370,7 +376,16 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
             <SuggestionChips suggestions={currentSuggestions} onSelect={sendMessage} />
           )}
 
-          {phase === "done" && <CompletionScreen />}
+          {phase === "done" && (
+            <CompletionScreen
+              title={completionTitle}
+              subtitle={completionSubtitle}
+              nextLabel={completionNextLabel}
+              nextText={completionNextText}
+              linkUrl={completionLinkUrl}
+              linkText={completionLinkText}
+            />
+          )}
         </div>
       </div>
 

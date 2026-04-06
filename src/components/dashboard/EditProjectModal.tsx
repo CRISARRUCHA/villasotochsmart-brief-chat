@@ -20,6 +20,12 @@ interface ProjectData {
   primary_color: string | null;
   accent_color: string | null;
   show_suggestions: boolean;
+  completion_title: string | null;
+  completion_subtitle: string | null;
+  completion_next_label: string | null;
+  completion_next_text: string | null;
+  completion_link_url: string | null;
+  completion_link_text: string | null;
 }
 
 interface EditProjectModalProps {
@@ -80,6 +86,12 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         primary_color: form.primary_color,
         accent_color: form.accent_color,
         show_suggestions: form.show_suggestions,
+        completion_title: form.completion_title,
+        completion_subtitle: form.completion_subtitle,
+        completion_next_label: form.completion_next_label,
+        completion_next_text: form.completion_next_text,
+        completion_link_url: form.completion_link_url,
+        completion_link_text: form.completion_link_text,
       };
 
       if (isSinglePhase) {
@@ -271,7 +283,7 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
     }
   };
 
-  const FIELDS: { key: keyof typeof form; label: string; long?: boolean }[] = [
+  const FIELDS: { key: keyof typeof form; label: string; long?: boolean; section?: string }[] = [
     { key: "name", label: "Nombre" },
     { key: "slug", label: "Slug (URL)" },
     { key: "description", label: "Descripción" },
@@ -287,6 +299,12 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
           { key: "phase1_prompt" as keyof typeof form, label: "Prompt Fase 1", long: true },
           { key: "phase2_prompt" as keyof typeof form, label: "Prompt Fase 2", long: true },
         ]),
+    { key: "completion_title" as keyof typeof form, label: "Título pantalla final", section: "Pantalla de finalización" },
+    { key: "completion_subtitle" as keyof typeof form, label: "Subtítulo pantalla final", long: true },
+    { key: "completion_next_label" as keyof typeof form, label: "Etiqueta '¿Qué sigue?'" },
+    { key: "completion_next_text" as keyof typeof form, label: "Texto '¿Qué sigue?'", long: true },
+    { key: "completion_link_url" as keyof typeof form, label: "URL enlace final" },
+    { key: "completion_link_text" as keyof typeof form, label: "Texto enlace final" },
   ];
 
   return (
@@ -318,12 +336,17 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         {mode === "manual" ? (
           <>
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              {FIELDS.map(({ key, label, long }) => {
+              {FIELDS.map(({ key, label, long, section }) => {
                 const isExpanded = expandedFields[key] || !long;
                 const value = (form[key] as string) || "";
 
                 return (
                   <div key={key}>
+                    {section && (
+                      <div className="border-t border-border pt-4 pb-1 mb-2 mt-2">
+                        <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">{section}</h3>
+                      </div>
+                    )}
                     <div
                       className={`flex items-center justify-between mb-1 ${long ? "cursor-pointer" : ""}`}
                       onClick={() => long && toggleField(key)}

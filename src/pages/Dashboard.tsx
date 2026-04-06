@@ -87,6 +87,12 @@ interface Project {
   primary_color: string | null;
   accent_color: string | null;
   show_suggestions: boolean;
+  completion_title: string | null;
+  completion_subtitle: string | null;
+  completion_next_label: string | null;
+  completion_next_text: string | null;
+  completion_link_url: string | null;
+  completion_link_text: string | null;
   created_at: string;
 }
 
@@ -139,7 +145,7 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("projects")
-      .select("id, name, slug, description, prompt, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, primary_color, accent_color, show_suggestions, created_at")
+      .select("id, name, slug, description, prompt, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, primary_color, accent_color, show_suggestions, completion_title, completion_subtitle, completion_next_label, completion_next_text, completion_link_url, completion_link_text, created_at")
       .order("created_at", { ascending: false });
     setProjects((data as unknown as Project[]) || []);
   };
@@ -170,6 +176,12 @@ const Dashboard = () => {
       primary_color: project.primary_color,
       accent_color: project.accent_color,
       show_suggestions: project.show_suggestions,
+      completion_title: project.completion_title,
+      completion_subtitle: project.completion_subtitle,
+      completion_next_label: project.completion_next_label,
+      completion_next_text: project.completion_next_text,
+      completion_link_url: project.completion_link_url,
+      completion_link_text: project.completion_link_text,
     }).select().single();
     if (error) {
       toast.error("Error al duplicar proyecto");

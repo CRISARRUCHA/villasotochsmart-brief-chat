@@ -4,9 +4,24 @@ import confetti from "canvas-confetti";
 import { Rocket } from "lucide-react";
 import logoHorizontal from "@/assets/logo-horizontal.png";
 
-export const CompletionScreen = () => {
+export interface CompletionScreenProps {
+  title?: string;
+  subtitle?: string;
+  nextLabel?: string;
+  nextText?: string;
+  linkUrl?: string;
+  linkText?: string;
+}
+
+export const CompletionScreen = ({
+  title = "¡Brief completado! 🎉",
+  subtitle = "Ya tenemos toda la información que necesitamos para diseñar tu sitio web. Nuestro equipo se pondrá en contacto contigo muy pronto para los siguientes pasos.",
+  nextLabel = "¿Qué sigue?",
+  nextText = "Revisaremos tu brief, prepararemos una propuesta personalizada y te contactaremos para alinear detalles.",
+  linkUrl = "https://creatulanding.com",
+  linkText = "Visita creatulanding.com →",
+}: CompletionScreenProps) => {
   useEffect(() => {
-    // Fire confetti from both sides
     const duration = 3000;
     const end = Date.now() + duration;
 
@@ -28,7 +43,6 @@ export const CompletionScreen = () => {
       if (Date.now() < end) requestAnimationFrame(frame);
     };
 
-    // Initial burst
     confetti({
       particleCount: 100,
       spread: 70,
@@ -61,7 +75,7 @@ export const CompletionScreen = () => {
         transition={{ delay: 0.3 }}
         className="text-2xl sm:text-3xl font-bold text-foreground mb-3"
       >
-        ¡Brief completado! 🎉
+        {title}
       </motion.h2>
 
       <motion.p
@@ -70,33 +84,38 @@ export const CompletionScreen = () => {
         transition={{ delay: 0.45 }}
         className="text-muted-foreground text-[15px] leading-relaxed mb-8"
       >
-        Ya tenemos toda la información que necesitamos para diseñar tu sitio web.
-        Nuestro equipo se pondrá en contacto contigo muy pronto para los siguientes pasos.
+        {subtitle}
       </motion.p>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="flex items-center gap-3 bg-card rounded-2xl px-5 py-4 ring-1 ring-white/[0.06] shadow-[var(--shadow-card)]"
-      >
-        <Rocket size={20} className="text-primary shrink-0" />
-        <p className="text-sm text-foreground/80 text-left">
-          <span className="font-semibold text-foreground">¿Qué sigue?</span> — Revisaremos tu brief, prepararemos una propuesta personalizada y te contactaremos para alinear detalles.
-        </p>
-      </motion.div>
+      {(nextLabel || nextText) && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="flex items-center gap-3 bg-card rounded-2xl px-5 py-4 ring-1 ring-white/[0.06] shadow-[var(--shadow-card)]"
+        >
+          <Rocket size={20} className="text-primary shrink-0" />
+          <p className="text-sm text-foreground/80 text-left">
+            {nextLabel && <span className="font-semibold text-foreground">{nextLabel}</span>}
+            {nextLabel && nextText && " — "}
+            {nextText}
+          </p>
+        </motion.div>
+      )}
 
-      <motion.a
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        href="https://creatulanding.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-8 text-sm text-primary hover:underline"
-      >
-        Visita creatulanding.com →
-      </motion.a>
+      {linkUrl && linkText && (
+        <motion.a
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-8 text-sm text-primary hover:underline"
+        >
+          {linkText}
+        </motion.a>
+      )}
     </motion.div>
   );
 };

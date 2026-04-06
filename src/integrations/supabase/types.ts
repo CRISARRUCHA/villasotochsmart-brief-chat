@@ -71,6 +71,12 @@ export type Database = {
       projects: {
         Row: {
           accent_color: string | null
+          completion_link_text: string | null
+          completion_link_url: string | null
+          completion_next_label: string | null
+          completion_next_text: string | null
+          completion_subtitle: string | null
+          completion_title: string | null
           created_at: string
           description: string | null
           id: string
@@ -91,6 +97,12 @@ export type Database = {
         }
         Insert: {
           accent_color?: string | null
+          completion_link_text?: string | null
+          completion_link_url?: string | null
+          completion_next_label?: string | null
+          completion_next_text?: string | null
+          completion_subtitle?: string | null
+          completion_title?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -111,6 +123,12 @@ export type Database = {
         }
         Update: {
           accent_color?: string | null
+          completion_link_text?: string | null
+          completion_link_url?: string | null
+          completion_next_label?: string | null
+          completion_next_text?: string | null
+          completion_subtitle?: string | null
+          completion_title?: string | null
           created_at?: string
           description?: string | null
           id?: string
