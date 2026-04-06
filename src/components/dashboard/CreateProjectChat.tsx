@@ -237,7 +237,7 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              placeholder={dictation.isListening ? "🎙️ Escuchando..." : "Describe tu proyecto..."}
+              placeholder={dictation.isProcessing ? "✨ Procesando transcripción..." : dictation.isListening ? "🎙️ Escuchando..." : "Describe tu proyecto..."}
               maxRows={3}
               className="w-full resize-none bg-transparent px-4 pt-3 pb-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[48px]"
             />

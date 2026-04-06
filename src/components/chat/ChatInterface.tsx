@@ -358,7 +358,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
                       inputRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
                     }, 300);
                   }}
-                  placeholder={dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
+                  placeholder={dictation.isProcessing ? "✨ Procesando transcripción..." : dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
                   maxRows={4}
                   className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
                 />
