@@ -48,7 +48,7 @@ export interface ChatInterfaceProps {
   completionLinkText?: string;
 }
 
-export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true }: ChatInterfaceProps) => {
+export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true, completionTitle, completionSubtitle, completionNextLabel, completionNextText, completionLinkUrl, completionLinkText }: ChatInterfaceProps) => {
   const storageKey = `chat-session-${project}`;
 
   const getInitialState = () => {
