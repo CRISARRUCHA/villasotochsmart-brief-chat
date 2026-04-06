@@ -376,7 +376,16 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
             <SuggestionChips suggestions={currentSuggestions} onSelect={sendMessage} />
           )}
 
-          {phase === "done" && <CompletionScreen />}
+          {phase === "done" && (
+            <CompletionScreen
+              title={completionTitle}
+              subtitle={completionSubtitle}
+              nextLabel={completionNextLabel}
+              nextText={completionNextText}
+              linkUrl={completionLinkUrl}
+              linkText={completionLinkText}
+            />
+          )}
         </div>
       </div>
 

@@ -60,6 +60,12 @@ const ProjectChat = () => {
       primaryColor={config.primary_color || undefined}
       accentColor={config.accent_color || undefined}
       showSuggestions={config.show_suggestions}
+      completionTitle={config.completion_title || undefined}
+      completionSubtitle={config.completion_subtitle || undefined}
+      completionNextLabel={config.completion_next_label || undefined}
+      completionNextText={config.completion_next_text || undefined}
+      completionLinkUrl={config.completion_link_url || undefined}
+      completionLinkText={config.completion_link_text || undefined}
     />
   );
 };
