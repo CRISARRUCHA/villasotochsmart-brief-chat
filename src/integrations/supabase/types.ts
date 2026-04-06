@@ -70,6 +70,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          accent_color: string | null
           created_at: string
           description: string | null
           id: string
@@ -80,12 +81,15 @@ export type Database = {
           name: string
           phase1_prompt: string
           phase2_prompt: string
+          primary_color: string | null
+          prompt: string | null
           slug: string
           steps: Json | null
           tips: Json | null
           updated_at: string
         }
         Insert: {
+          accent_color?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -96,12 +100,15 @@ export type Database = {
           name: string
           phase1_prompt: string
           phase2_prompt: string
+          primary_color?: string | null
+          prompt?: string | null
           slug: string
           steps?: Json | null
           tips?: Json | null
           updated_at?: string
         }
         Update: {
+          accent_color?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -112,6 +119,8 @@ export type Database = {
           name?: string
           phase1_prompt?: string
           phase2_prompt?: string
+          primary_color?: string | null
+          prompt?: string | null
           slug?: string
           steps?: Json | null
           tips?: Json | null
