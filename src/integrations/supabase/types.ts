@@ -83,6 +83,7 @@ export type Database = {
           phase2_prompt: string
           primary_color: string | null
           prompt: string | null
+          show_suggestions: boolean
           slug: string
           steps: Json | null
           tips: Json | null
@@ -102,6 +103,7 @@ export type Database = {
           phase2_prompt: string
           primary_color?: string | null
           prompt?: string | null
+          show_suggestions?: boolean
           slug: string
           steps?: Json | null
           tips?: Json | null
@@ -121,6 +123,7 @@ export type Database = {
           phase2_prompt?: string
           primary_color?: string | null
           prompt?: string | null
+          show_suggestions?: boolean
           slug?: string
           steps?: Json | null
           tips?: Json | null
