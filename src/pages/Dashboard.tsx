@@ -87,6 +87,12 @@ interface Project {
   primary_color: string | null;
   accent_color: string | null;
   show_suggestions: boolean;
+  completion_title: string | null;
+  completion_subtitle: string | null;
+  completion_next_label: string | null;
+  completion_next_text: string | null;
+  completion_link_url: string | null;
+  completion_link_text: string | null;
   created_at: string;
 }
 
