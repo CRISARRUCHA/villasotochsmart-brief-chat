@@ -42,26 +42,60 @@ export interface ChatInterfaceProps {
 }
 
 export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor }: ChatInterfaceProps) => {
+  const storageKey = `chat-session-${project}`;
+
+  const getInitialState = () => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.messages?.length > 1 || parsed.phase !== "brief") {
+          return parsed;
+        }
+      }
+    } catch {}
+    return null;
+  };
+
+  const savedState = useRef(getInitialState()).current;
+
   const baseMessage = initialMessageOverride
     ? { role: "assistant" as const, content: initialMessageOverride }
     : (INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general);
-  const [messages, setMessages] = useState<DisplayMessage[]>([baseMessage]);
-  const [apiMessages, setApiMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<DisplayMessage[]>(savedState?.messages || [baseMessage]);
+  const [apiMessages, setApiMessages] = useState<Message[]>(savedState?.apiMessages || [
     { role: "assistant", content: baseMessage.content },
   ]);
-  const [phase, setPhase] = useState<Phase>("brief");
-  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<Phase>(savedState?.phase || "brief");
+  const [progress, setProgress] = useState(savedState?.progress || 0);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("");
-  const [briefData, setBriefData] = useState<Record<string, any>>({});
-  const [currentSuggestions, setCurrentSuggestions] = useState<string[] | undefined>(undefined);
-  const [briefId, setBriefId] = useState<string | null>(null);
-  const briefIdRef = useRef<string | null>(null);
+  const [briefData, setBriefData] = useState<Record<string, any>>(savedState?.briefData || {});
+  const [currentSuggestions, setCurrentSuggestions] = useState<string[] | undefined>(savedState?.currentSuggestions);
+  const [briefId, setBriefId] = useState<string | null>(savedState?.briefId || null);
+  const briefIdRef = useRef<string | null>(savedState?.briefId || null);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
-  const fullChatHistoryRef = useRef<Message[]>([
+  const fullChatHistoryRef = useRef<Message[]>(savedState?.fullChatHistory || [
     { role: "assistant", content: baseMessage.content },
   ]);
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
+
+  // Persist chat state to localStorage
+  useEffect(() => {
+    const state = {
+      messages,
+      apiMessages,
+      phase,
+      progress,
+      briefData,
+      currentSuggestions,
+      briefId: briefIdRef.current,
+      fullChatHistory: fullChatHistoryRef.current,
+    };
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    } catch {}
+  }, [messages, apiMessages, phase, progress, briefData, currentSuggestions, storageKey]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
