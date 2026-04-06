@@ -86,6 +86,7 @@ interface Project {
   landing_cta: string | null;
   primary_color: string | null;
   accent_color: string | null;
+  show_suggestions: boolean;
   created_at: string;
 }
 
