@@ -342,6 +342,11 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
 
                 return (
                   <div key={key}>
+                    {section && (
+                      <div className="border-t border-border pt-4 pb-1 mb-2 mt-2">
+                        <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">{section}</h3>
+                      </div>
+                    )}
                     <div
                       className={`flex items-center justify-between mb-1 ${long ? "cursor-pointer" : ""}`}
                       onClick={() => long && toggleField(key)}
