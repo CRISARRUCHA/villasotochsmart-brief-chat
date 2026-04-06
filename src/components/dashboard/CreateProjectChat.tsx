@@ -30,6 +30,7 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
 
   const dictation = useDictation({
     onResult: (transcript) => setInput(transcript),
+    onProcessed: (cleaned) => setInput(cleaned),
   });
 
   const handlePaste = async () => {
@@ -236,7 +237,7 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              placeholder={dictation.isListening ? "🎙️ Escuchando..." : "Describe tu proyecto..."}
+              placeholder={dictation.isProcessing ? "✨ Procesando transcripción..." : dictation.isListening ? "🎙️ Escuchando..." : "Describe tu proyecto..."}
               maxRows={3}
               className="w-full resize-none bg-transparent px-4 pt-3 pb-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[48px]"
             />
@@ -245,8 +246,9 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
                 {dictation.isSupported && (
                   <button
                     onClick={dictation.toggle}
-                    className={`p-1.5 rounded-lg transition-colors ${dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
-                    title={dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
+                    disabled={dictation.isProcessing}
+                    className={`p-1.5 rounded-lg transition-colors ${dictation.isProcessing ? "text-primary bg-primary/10 animate-pulse" : dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                    title={dictation.isProcessing ? "Procesando..." : dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
                   >
                     {dictation.isListening ? <MicOff size={14} /> : <Mic size={14} />}
                   </button>

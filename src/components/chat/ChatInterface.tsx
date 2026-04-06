@@ -67,6 +67,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
 
   const dictation = useDictation({
     onResult: (transcript) => setInput(transcript),
+    onProcessed: (cleaned) => setInput(cleaned),
   });
 
   const handlePaste = async () => {
@@ -357,7 +358,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
                       inputRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
                     }, 300);
                   }}
-                  placeholder={dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
+                  placeholder={dictation.isProcessing ? "✨ Procesando transcripción..." : dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
                   maxRows={4}
                   className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
                 />
@@ -372,8 +373,9 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
                     {dictation.isSupported && (
                       <button
                         onClick={dictation.toggle}
-                        className={`p-2 rounded-lg transition-colors ${dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
-                        title={dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
+                        disabled={dictation.isProcessing}
+                        className={`p-2 rounded-lg transition-colors ${dictation.isProcessing ? "text-primary bg-primary/10 animate-pulse" : dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                        title={dictation.isProcessing ? "Procesando..." : dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
                       >
                         {dictation.isListening ? <MicOff size={16} /> : <Mic size={16} />}
                       </button>
