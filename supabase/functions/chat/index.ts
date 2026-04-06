@@ -60,8 +60,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    let phase1Prompt = GENERAL_PHASE1;
-    let phase2Prompt = GENERAL_PHASE2;
+    let systemPrompt: string;
 
     // If a project slug is specified, try to load prompts from the DB
     if (project && project !== "general") {
@@ -71,19 +70,36 @@ serve(async (req) => {
 
       const { data: projectData } = await sb
         .from("projects")
-        .select("phase1_prompt, phase2_prompt")
+        .select("prompt, phase1_prompt, phase2_prompt")
         .eq("slug", project)
         .single();
 
       if (projectData) {
-        phase1Prompt = projectData.phase1_prompt;
-        phase2Prompt = projectData.phase2_prompt;
+        // New single-prompt projects use the `prompt` field
+        if (projectData.prompt) {
+          systemPrompt = projectData.prompt;
+          // If briefData is passed, inject it
+          if (briefData) {
+            systemPrompt = systemPrompt.replace("{{BRIEF_DATA}}", JSON.stringify(briefData));
+          }
+        } else {
+          // Legacy two-phase projects
+          systemPrompt = phase === "brief"
+            ? projectData.phase1_prompt
+            : projectData.phase2_prompt.replace("{{BRIEF_DATA}}", JSON.stringify(briefData || {}));
+        }
+      } else {
+        // Fallback to general prompts
+        systemPrompt = phase === "brief"
+          ? GENERAL_PHASE1
+          : GENERAL_PHASE2.replace("{{BRIEF_DATA}}", JSON.stringify(briefData || {}));
       }
+    } else {
+      // General project uses legacy two-phase
+      systemPrompt = phase === "brief"
+        ? GENERAL_PHASE1
+        : GENERAL_PHASE2.replace("{{BRIEF_DATA}}", JSON.stringify(briefData || {}));
     }
-
-    const systemPrompt = phase === "brief"
-      ? phase1Prompt
-      : phase2Prompt.replace("{{BRIEF_DATA}}", JSON.stringify(briefData || {}));
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

@@ -5,51 +5,56 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Eres un asistente interno de Im-Pulsa Web que ayuda al ADMINISTRADOR a crear un nuevo proyecto de brief personalizado. Tu objetivo es recopilar la información necesaria para generar los prompts del chatbot que interactuará con los stakeholders/clientes del proyecto.
+const SYSTEM_PROMPT = `Eres un asistente interno de Im-Pulsa Web que ayuda al ADMINISTRADOR a crear un nuevo proyecto de formulario IA personalizado. Tu objetivo es recopilar la información necesaria para generar el prompt del chatbot que interactuará con los usuarios finales del proyecto.
+
+IMPORTANTE: Los formularios NO son solo para sitios web. Pueden ser para cualquier propósito: branding, sondeo de prospectos, onboarding de clientes, recolección de información para cualquier servicio, investigación de mercado, etc. Adapta las preguntas según el contexto del proyecto.
 
 ESTILO:
 - Sé breve y directo, 2-3 oraciones máximo
 - Haz UNA pregunta a la vez
 - Tono profesional e interno (hablas con un colega, no con un cliente)
+- Sé PROACTIVO: sugiere cosas basándote en lo que ya sabes del proyecto
 
 TEMAS A CUBRIR:
 1. nombre_proyecto — Nombre del proyecto o cliente
-2. slug — Sugerir un slug URL-friendly basado en el nombre (ej: "villas-otoch", "hotel-maya")
-3. contexto — Descripción breve del proyecto/cliente y su industria
-4. objetivo_brief — Qué información necesitamos recopilar de los stakeholders/clientes
-5. temas_fase1 — Lista de temas específicos para la primera fase del brief (mínimo 7, máximo 10)
-6. temas_fase2 — Lista de temas para la segunda fase (contenido, diseño, etc.) (mínimo 6, máximo 8)
-7. tono_chatbot — Cómo debe comunicarse el chatbot (profesional, cercano, institucional, etc.)
-8. recomendaciones — Si el chatbot debe hacer recomendaciones proactivas de servicios (Meta Ads, SEO, etc.)
-9. mensaje_inicial — Cómo debe presentarse el chatbot al usuario (nombre del asistente, contexto breve)
-10. landing_info — Título y subtítulo para la landing page del proyecto
+2. slug — Sugerir un slug URL-friendly basado en el nombre
+3. contexto — Descripción breve del proyecto/cliente, su industria y PROPÓSITO del formulario (¿qué tipo de información se recopila?)
+4. temas — Lista de temas específicos que debe cubrir el chatbot (mínimo 5, máximo 15). Deben ser relevantes al propósito, NO asumir que es para un sitio web.
+5. tono_chatbot — Cómo debe comunicarse el chatbot (profesional, cercano, institucional, etc.)
+6. nombre_asistente — Nombre del asistente virtual
+7. recomendaciones — Si el chatbot debe hacer recomendaciones proactivas de servicios adicionales
+8. idioma — En qué idioma(s) debe funcionar el chatbot. Si es bilingüe, debe preguntar al inicio.
+9. colores — Colores de la experiencia (primario y fondo/acento). Sugerir basándose en la industria/marca.
 
 REGLAS:
 - Después de CADA respuesta incluye: {"suggestions":["opción 1","opción 2","opción 3"]}
-- Cuando tengas toda la información necesaria, LLAMA la función create_project con todos los datos. NO intentes generar JSON manualmente, usa la función.
+- Cuando tengas toda la información, PROPÓN la landing page (título, subtítulo, pasos, tips) y pregunta al admin si está de acuerdo antes de guardar.
+- Cuando el admin confirme la landing, LLAMA la función create_project con todos los datos. NO intentes generar JSON manualmente, usa la función.
 
-IMPORTANTE sobre los prompts generados:
-- El phase1_prompt debe terminar indicando que después de cubrir todos los temas responda SOLO con: {"action":"generate_brief","data":{...}}
-- El phase2_prompt debe terminar indicando que responda SOLO con: {"action":"generate_full_brief","data":{...}}
-- Ambos prompts deben indicar incluir suggestion chips después de cada respuesta
-- El phase2_prompt DEBE contener el placeholder {{BRIEF_DATA}} para recibir los datos de la fase 1
-- Los prompts deben estar en el idioma apropiado según lo discutido
-- Incluye las reglas de comunicación (breve, una pregunta a la vez, no preguntar sobre hosting/dominio/técnico)`;
+IMPORTANTE sobre el prompt generado:
+- El prompt debe ser UNA SOLA fase inteligente que cubra todos los temas sin cortes artificiales
+- El chatbot debe ser proactivo: si ya tiene información, no debe volver a preguntar
+- Si el usuario da información que cubre varios temas a la vez, avanzar sin repetir
+- El prompt debe indicar que al finalizar responda SOLO con: {"action":"generate_brief","data":{...}}
+- El prompt debe incluir suggestion chips después de cada respuesta
+- El prompt debe estar en el idioma apropiado según lo discutido
+- NUNCA preguntar sobre hosting, dominio o aspectos técnicos del desarrollo`;
 
 const CREATE_PROJECT_TOOL = {
   type: "function",
   function: {
     name: "create_project",
-    description: "Crea un nuevo proyecto de brief personalizado con toda la configuración necesaria",
+    description: "Crea un nuevo proyecto de formulario IA personalizado con toda la configuración necesaria",
     parameters: {
       type: "object",
       properties: {
         name: { type: "string", description: "Nombre del proyecto" },
         slug: { type: "string", description: "Slug URL-friendly" },
         description: { type: "string", description: "Descripción breve del proyecto" },
-        phase1_prompt: { type: "string", description: "Prompt completo para la fase 1 del brief" },
-        phase2_prompt: { type: "string", description: "Prompt completo para la fase 2. DEBE contener {{BRIEF_DATA}} como placeholder" },
+        prompt: { type: "string", description: "Prompt completo para el chatbot. Una sola fase inteligente. Debe terminar indicando que al cubrir todos los temas responda SOLO con {\"action\":\"generate_brief\",\"data\":{...}}" },
         initial_message: { type: "string", description: "Mensaje inicial de bienvenida del chatbot" },
+        primary_color: { type: "string", description: "Color primario en formato hex (ej: #1488fc)" },
+        accent_color: { type: "string", description: "Color de fondo/acento en formato hex (ej: #0f0f0f)" },
         landing_title: { type: "string", description: "Título para la landing page" },
         landing_subtitle: { type: "string", description: "Subtítulo para la landing page" },
         landing_cta: { type: "string", description: "Texto del botón CTA" },
@@ -62,18 +67,17 @@ const CREATE_PROJECT_TOOL = {
               icon: { type: "string", enum: ["MessageSquare", "Target", "CheckCircle", "Lightbulb", "Users", "FileText"] },
               title: { type: "string" },
               desc: { type: "string" },
-              color: { type: "string" }
             },
-            required: ["icon", "title", "desc", "color"]
+            required: ["icon", "title", "desc"]
           }
         },
         tips: {
           type: "array",
-          description: "4 tips para el usuario",
+          description: "3-5 tips para el usuario antes de empezar",
           items: { type: "string" }
         }
       },
-      required: ["name", "slug", "description", "phase1_prompt", "phase2_prompt", "initial_message", "landing_title", "landing_subtitle", "landing_cta", "steps", "tips"]
+      required: ["name", "slug", "description", "prompt", "initial_message", "primary_color", "accent_color", "landing_title", "landing_subtitle", "landing_cta", "steps", "tips"]
     }
   }
 };

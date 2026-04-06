@@ -17,10 +17,10 @@ interface CreateProjectChatProps {
 
 export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectChatProps) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "👋 **¡Hola!** Vamos a crear un nuevo proyecto de brief personalizado.\n\nCuéntame — **¿cómo se llama el proyecto o cliente?**" },
+    { role: "assistant", content: "👋 **¡Hola!** Vamos a crear un nuevo formulario IA personalizado.\n\nPuede ser para cualquier cosa: brief de sitio web, sondeo de prospectos, branding, onboarding, etc.\n\n**¿Cómo se llama el proyecto o cliente?**" },
   ]);
   const [apiMessages, setApiMessages] = useState<Array<{ role: string; content: string }>>([
-    { role: "assistant", content: "👋 ¡Hola! Vamos a crear un nuevo proyecto de brief personalizado.\n\nCuéntame — ¿cómo se llama el proyecto o cliente?" },
+    { role: "assistant", content: "¡Hola! Vamos a crear un nuevo formulario IA personalizado. ¿Cómo se llama el proyecto o cliente?" },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +76,6 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
             const parsed = JSON.parse(line.slice(6));
             const choice = parsed.choices?.[0];
             
-            // Check for tool call
             if (choice?.delta?.tool_calls) {
               toolCallDetected = true;
               for (const tc of choice.delta.tool_calls) {
@@ -87,7 +86,6 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
               continue;
             }
 
-            // Regular content
             const delta = choice?.delta?.content;
             if (delta) {
               assistantContent += delta;
@@ -105,11 +103,9 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
         }
       }
 
-      // Handle tool call result (structured output - guaranteed valid JSON)
       if (toolCallDetected && toolCallArgs) {
         try {
           const projectData = JSON.parse(toolCallArgs);
-          // Show saving message
           setMessages(prev => {
             const filtered = prev.filter((m, i) => !(i === prev.length - 1 && m.role === "assistant" && !m.content.trim()));
             return [...filtered, { role: "assistant", content: "✅ **¡Configuración generada!** Guardando proyecto..." }];
@@ -119,22 +115,6 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
         } catch (e) {
           console.error("Error parsing tool call args:", e, toolCallArgs.slice(0, 300));
           toast.error("Error al procesar la configuración del proyecto.");
-        }
-      } else if (!toolCallDetected) {
-        // Fallback: check for inline JSON action (legacy)
-        const actionStart = assistantContent.indexOf('{"action"');
-        if (actionStart !== -1) {
-          const jsonStr = extractBalancedJson(assistantContent, actionStart);
-          if (jsonStr) {
-            try {
-              const actionJson = JSON.parse(jsonStr);
-              if (actionJson.action === "create_project" && actionJson.data) {
-                await saveProject(actionJson.data);
-              }
-            } catch (e) {
-              console.error("Fallback JSON parse failed:", e);
-            }
-          }
         }
       }
 
@@ -154,31 +134,28 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
     }
   };
 
-  const extractBalancedJson = (str: string, start: number): string | null => {
-    let depth = 0;
-    for (let i = start; i < str.length; i++) {
-      if (str[i] === '{') depth++;
-      else if (str[i] === '}') { depth--; if (depth === 0) return str.slice(start, i + 1); }
-    }
-    return null;
-  };
-
   const saveProject = async (data: any) => {
     setSaving(true);
     try {
-      const { error } = await supabase.from("projects").insert({
+      const insertData: any = {
         name: data.name,
         slug: data.slug,
         description: data.description || null,
-        phase1_prompt: data.phase1_prompt,
-        phase2_prompt: data.phase2_prompt,
+        prompt: data.prompt,
+        // Keep phase1/phase2 as empty defaults for backward compat
+        phase1_prompt: data.prompt || "",
+        phase2_prompt: "",
         initial_message: data.initial_message,
+        primary_color: data.primary_color || "#1488fc",
+        accent_color: data.accent_color || "#0f0f0f",
         landing_title: data.landing_title || data.name,
         landing_subtitle: data.landing_subtitle || null,
         landing_cta: data.landing_cta || "Comenzar",
         steps: data.steps || [],
         tips: data.tips || [],
-      });
+      };
+
+      const { error } = await supabase.from("projects").insert(insertData);
 
       if (error) {
         if (error.code === "23505") {
@@ -203,18 +180,16 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-background border border-border rounded-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
             <Sparkles size={18} className="text-primary" />
-            <h2 className="text-sm font-semibold text-foreground">Crear nuevo proyecto</h2>
+            <h2 className="text-sm font-semibold text-foreground">Crear nuevo formulario IA</h2>
           </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X size={18} />
           </button>
         </div>
 
-        {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -241,7 +216,6 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
           )}
         </div>
 
-        {/* Input */}
         <div className="border-t border-border p-3">
           <div className="relative rounded-xl bg-card ring-1 ring-border">
             <TextareaAutosize
