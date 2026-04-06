@@ -105,6 +105,49 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
     }
   };
 
+  const applyUpdates = async (updates: Record<string, any>) => {
+    const newForm = { ...form };
+    if (updates.name) newForm.name = updates.name;
+    if (updates.slug) newForm.slug = updates.slug;
+    if (updates.description !== undefined) newForm.description = updates.description;
+    if (updates.prompt) newForm.prompt = updates.prompt;
+    if (updates.phase1_prompt) newForm.phase1_prompt = updates.phase1_prompt;
+    if (updates.phase2_prompt) newForm.phase2_prompt = updates.phase2_prompt;
+    if (updates.initial_message) newForm.initial_message = updates.initial_message;
+    if (updates.landing_title) newForm.landing_title = updates.landing_title;
+    if (updates.landing_subtitle) newForm.landing_subtitle = updates.landing_subtitle;
+    if (updates.landing_cta) newForm.landing_cta = updates.landing_cta;
+    if (updates.primary_color) newForm.primary_color = updates.primary_color;
+    if (updates.accent_color) newForm.accent_color = updates.accent_color;
+    setForm(newForm);
+
+    const updateData: any = {
+      name: newForm.name,
+      slug: newForm.slug,
+      description: newForm.description,
+      initial_message: newForm.initial_message,
+      landing_title: newForm.landing_title,
+      landing_subtitle: newForm.landing_subtitle,
+      landing_cta: newForm.landing_cta,
+      primary_color: newForm.primary_color,
+      accent_color: newForm.accent_color,
+    };
+    if (newForm.prompt) {
+      updateData.prompt = newForm.prompt;
+      updateData.phase1_prompt = newForm.prompt;
+    } else {
+      updateData.phase1_prompt = newForm.phase1_prompt;
+      updateData.phase2_prompt = newForm.phase2_prompt;
+    }
+
+    const { error } = await supabase.from("projects").update(updateData).eq("id", project.id);
+    if (error) {
+      toast.error("Error al guardar cambios");
+    } else {
+      toast.success("✅ Cambios aplicados y guardados");
+    }
+  };
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -117,6 +160,9 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
     setIsLoading(true);
 
     let assistantContent = "";
+    let toolCallArgs = "";
+    let toolCallName = "";
+    let hasToolCall = false;
 
     try {
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
@@ -141,7 +187,10 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
           if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
           try {
             const parsed = JSON.parse(line.slice(6));
-            const delta = parsed.choices?.[0]?.delta?.content;
+            const choice = parsed.choices?.[0];
+
+            // Handle text content
+            const delta = choice?.delta?.content;
             if (delta) {
               assistantContent += delta;
               const display = cleanDisplay(assistantContent);
@@ -154,60 +203,43 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
               });
               scrollToBottom();
             }
+
+            // Handle tool calls
+            const toolCalls = choice?.delta?.tool_calls;
+            if (toolCalls) {
+              for (const tc of toolCalls) {
+                if (tc.function?.name) toolCallName = tc.function.name;
+                if (tc.function?.arguments) toolCallArgs += tc.function.arguments;
+                hasToolCall = true;
+              }
+            }
           } catch {}
         }
       }
 
-      const actionMatch = assistantContent.match(/\{"action"\s*:\s*"update_project"[\s\S]*$/);
-      if (actionMatch) {
+      // Process tool call if we got one
+      if (hasToolCall && toolCallName === "update_project" && toolCallArgs) {
         try {
-          const actionJson = JSON.parse(actionMatch[0]);
-          if (actionJson.action === "update_project" && actionJson.data) {
-            const updates = actionJson.data;
-            const newForm = { ...form };
-            if (updates.name) newForm.name = updates.name;
-            if (updates.slug) newForm.slug = updates.slug;
-            if (updates.description !== undefined) newForm.description = updates.description;
-            if (updates.prompt) newForm.prompt = updates.prompt;
-            if (updates.phase1_prompt) newForm.phase1_prompt = updates.phase1_prompt;
-            if (updates.phase2_prompt) newForm.phase2_prompt = updates.phase2_prompt;
-            if (updates.initial_message) newForm.initial_message = updates.initial_message;
-            if (updates.landing_title) newForm.landing_title = updates.landing_title;
-            if (updates.landing_subtitle) newForm.landing_subtitle = updates.landing_subtitle;
-            if (updates.landing_cta) newForm.landing_cta = updates.landing_cta;
-            if (updates.primary_color) newForm.primary_color = updates.primary_color;
-            if (updates.accent_color) newForm.accent_color = updates.accent_color;
-            setForm(newForm);
-
-            const updateData: any = {
-              name: newForm.name,
-              slug: newForm.slug,
-              description: newForm.description,
-              initial_message: newForm.initial_message,
-              landing_title: newForm.landing_title,
-              landing_subtitle: newForm.landing_subtitle,
-              landing_cta: newForm.landing_cta,
-              primary_color: newForm.primary_color,
-              accent_color: newForm.accent_color,
-            };
-            if (newForm.prompt) {
-              updateData.prompt = newForm.prompt;
-              updateData.phase1_prompt = newForm.prompt;
-            } else {
-              updateData.phase1_prompt = newForm.phase1_prompt;
-              updateData.phase2_prompt = newForm.phase2_prompt;
-            }
-
-            const { error } = await supabase.from("projects").update(updateData).eq("id", project.id);
-
-            if (error) {
-              toast.error("Error al guardar cambios");
-            } else {
-              toast.success("Cambios aplicados y guardados");
-            }
-          }
+          const updates = JSON.parse(toolCallArgs);
+          await applyUpdates(updates);
         } catch (e) {
-          console.error("Error parsing action:", e);
+          console.error("Error parsing tool call:", e);
+          toast.error("Error al procesar los cambios");
+        }
+      }
+
+      // Fallback: also check for raw JSON action in text (backward compat)
+      if (!hasToolCall) {
+        const actionMatch = assistantContent.match(/\{"action"\s*:\s*"update_project"[\s\S]*$/);
+        if (actionMatch) {
+          try {
+            const actionJson = JSON.parse(actionMatch[0]);
+            if (actionJson.action === "update_project" && actionJson.data) {
+              await applyUpdates(actionJson.data);
+            }
+          } catch (e) {
+            console.error("Error parsing action JSON:", e);
+          }
         }
       }
 
