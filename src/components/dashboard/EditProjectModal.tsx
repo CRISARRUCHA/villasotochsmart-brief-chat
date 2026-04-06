@@ -336,7 +336,7 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         {mode === "manual" ? (
           <>
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              {FIELDS.map(({ key, label, long }) => {
+              {FIELDS.map(({ key, label, long, section }) => {
                 const isExpanded = expandedFields[key] || !long;
                 const value = (form[key] as string) || "";
 
