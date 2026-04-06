@@ -236,11 +236,29 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              placeholder="Describe tu proyecto..."
+              placeholder={dictation.isListening ? "🎙️ Escuchando..." : "Describe tu proyecto..."}
               maxRows={3}
               className="w-full resize-none bg-transparent px-4 pt-3 pb-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[48px]"
             />
-            <div className="absolute bottom-2 right-2">
+            <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                {dictation.isSupported && (
+                  <button
+                    onClick={dictation.toggle}
+                    className={`p-1.5 rounded-lg transition-colors ${dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                    title={dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
+                  >
+                    {dictation.isListening ? <MicOff size={14} /> : <Mic size={14} />}
+                  </button>
+                )}
+                <button
+                  onClick={handlePaste}
+                  className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  title="Pegar desde portapapeles"
+                >
+                  <ClipboardPaste size={14} />
+                </button>
+              </div>
               <button
                 onClick={() => sendMessage(input)}
                 disabled={!input.trim() || isLoading}
