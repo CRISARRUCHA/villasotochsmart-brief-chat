@@ -28,6 +28,19 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
   const [saving, setSaving] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const dictation = useDictation({
+    onResult: (transcript) => setInput(transcript),
+  });
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setInput(prev => prev + text);
+    } catch {
+      toast.error("No se pudo acceder al portapapeles");
+    }
+  };
+
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
