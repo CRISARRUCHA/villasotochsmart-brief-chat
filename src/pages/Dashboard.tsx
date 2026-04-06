@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp,
   Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen,
-  ExternalLink, Copy, Pencil, LayoutGrid, List, Inbox, Hash
+  ExternalLink, Copy, Pencil, LayoutGrid, List, Inbox, Hash, CopyPlus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -149,6 +149,30 @@ const Dashboard = () => {
     } else {
       setProjects(prev => prev.filter(p => p.id !== id));
       toast.success("Proyecto eliminado");
+    }
+  };
+
+  const duplicateProject = async (project: Project) => {
+    const newSlug = `${project.slug}-copia-${Date.now().toString(36)}`;
+    const { data, error } = await supabase.from("projects").insert({
+      name: `${project.name} (copia)`,
+      slug: newSlug,
+      description: project.description,
+      prompt: project.prompt,
+      phase1_prompt: project.phase1_prompt,
+      phase2_prompt: project.phase2_prompt,
+      initial_message: project.initial_message,
+      landing_title: project.landing_title,
+      landing_subtitle: project.landing_subtitle,
+      landing_cta: project.landing_cta,
+      primary_color: project.primary_color,
+      accent_color: project.accent_color,
+    }).select().single();
+    if (error) {
+      toast.error("Error al duplicar proyecto");
+    } else {
+      setProjects(prev => [data as unknown as Project, ...prev]);
+      toast.success("Proyecto duplicado");
     }
   };
 
@@ -431,6 +455,9 @@ const Dashboard = () => {
               </button>
               <button onClick={() => setEditingProject(project)} className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Editar">
                 <Pencil size={13} />
+              </button>
+              <button onClick={() => duplicateProject(project)} className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Duplicar">
+                <CopyPlus size={13} />
               </button>
               <a href={`/p/${project.slug}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Abrir">
                 <ExternalLink size={13} />
