@@ -373,8 +373,9 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
                     {dictation.isSupported && (
                       <button
                         onClick={dictation.toggle}
-                        className={`p-2 rounded-lg transition-colors ${dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
-                        title={dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
+                        disabled={dictation.isProcessing}
+                        className={`p-2 rounded-lg transition-colors ${dictation.isProcessing ? "text-primary bg-primary/10 animate-pulse" : dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                        title={dictation.isProcessing ? "Procesando..." : dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
                       >
                         {dictation.isListening ? <MicOff size={16} /> : <Mic size={16} />}
                       </button>

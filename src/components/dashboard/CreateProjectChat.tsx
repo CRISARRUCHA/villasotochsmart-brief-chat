@@ -246,8 +246,9 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
                 {dictation.isSupported && (
                   <button
                     onClick={dictation.toggle}
-                    className={`p-1.5 rounded-lg transition-colors ${dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
-                    title={dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
+                    disabled={dictation.isProcessing}
+                    className={`p-1.5 rounded-lg transition-colors ${dictation.isProcessing ? "text-primary bg-primary/10 animate-pulse" : dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                    title={dictation.isProcessing ? "Procesando..." : dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
                   >
                     {dictation.isListening ? <MicOff size={14} /> : <Mic size={14} />}
                   </button>
