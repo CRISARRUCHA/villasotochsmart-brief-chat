@@ -30,6 +30,7 @@ export const CreateProjectChat = ({ onProjectCreated, onClose }: CreateProjectCh
 
   const dictation = useDictation({
     onResult: (transcript) => setInput(transcript),
+    onProcessed: (cleaned) => setInput(cleaned),
   });
 
   const handlePaste = async () => {

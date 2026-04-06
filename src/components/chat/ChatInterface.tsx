@@ -67,6 +67,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
 
   const dictation = useDictation({
     onResult: (transcript) => setInput(transcript),
+    onProcessed: (cleaned) => setInput(cleaned),
   });
 
   const handlePaste = async () => {
