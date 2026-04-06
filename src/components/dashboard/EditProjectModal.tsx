@@ -283,7 +283,7 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
     }
   };
 
-  const FIELDS: { key: keyof typeof form; label: string; long?: boolean }[] = [
+  const FIELDS: { key: keyof typeof form; label: string; long?: boolean; section?: string }[] = [
     { key: "name", label: "Nombre" },
     { key: "slug", label: "Slug (URL)" },
     { key: "description", label: "Descripción" },
@@ -299,6 +299,12 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
           { key: "phase1_prompt" as keyof typeof form, label: "Prompt Fase 1", long: true },
           { key: "phase2_prompt" as keyof typeof form, label: "Prompt Fase 2", long: true },
         ]),
+    { key: "completion_title" as keyof typeof form, label: "Título pantalla final", section: "Pantalla de finalización" },
+    { key: "completion_subtitle" as keyof typeof form, label: "Subtítulo pantalla final", long: true },
+    { key: "completion_next_label" as keyof typeof form, label: "Etiqueta '¿Qué sigue?'" },
+    { key: "completion_next_text" as keyof typeof form, label: "Texto '¿Qué sigue?'", long: true },
+    { key: "completion_link_url" as keyof typeof form, label: "URL enlace final" },
+    { key: "completion_link_text" as keyof typeof form, label: "Texto enlace final" },
   ];
 
   return (
