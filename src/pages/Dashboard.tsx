@@ -452,7 +452,7 @@ const Dashboard = () => {
 
             <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
               <button onClick={() => copyProjectUrl(project.slug)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary" title="Copiar URL">
-                <Copy size={13} />
+                <Share2 size={13} />
               </button>
               <button onClick={() => setEditingProject(project)} className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Editar">
                 <Pencil size={13} />
