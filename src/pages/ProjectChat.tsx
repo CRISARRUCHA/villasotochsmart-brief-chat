@@ -30,7 +30,7 @@ const ProjectChat = () => {
       if (!slug) return;
       const { data } = await supabase
         .from("projects")
-        .select("initial_message, slug, prompt, primary_color, accent_color, show_suggestions")
+        .select("initial_message, slug, prompt, primary_color, accent_color, show_suggestions, completion_title, completion_subtitle, completion_next_label, completion_next_text, completion_link_url, completion_link_text")
         .eq("slug", slug)
         .single();
       if (data) {
