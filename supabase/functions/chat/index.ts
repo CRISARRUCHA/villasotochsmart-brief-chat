@@ -62,6 +62,15 @@ serve(async (req) => {
 
     let systemPrompt: string;
 
+    // Global behavioral rules injected into EVERY chatbot
+    const GLOBAL_RULES = `\n\nREGLAS GLOBALES (aplican SIEMPRE, sin excepción):
+- Haz solo UNA pregunta por mensaje. Nunca agrupa múltiples preguntas.
+- Máximo 2-3 oraciones por mensaje. Sé breve y directo.
+- Usa párrafos separados cuando sea necesario, no bloques de texto.
+- Las sugerencias o ejemplos deben ir en *itálica*.
+- No repitas información que el usuario ya proporcionó.
+- Después de CADA respuesta, incluye una línea JSON: {"suggestions":["opción 1","opción 2","opción 3"]}`;
+
     // If a project slug is specified, try to load prompts from the DB
     if (project && project !== "general") {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -77,7 +86,7 @@ serve(async (req) => {
       if (projectData) {
         // New single-prompt projects use the `prompt` field
         if (projectData.prompt) {
-          systemPrompt = projectData.prompt;
+          systemPrompt = projectData.prompt + GLOBAL_RULES;
           // If briefData is passed, inject it
           if (briefData) {
             systemPrompt = systemPrompt.replace("{{BRIEF_DATA}}", JSON.stringify(briefData));
@@ -85,8 +94,8 @@ serve(async (req) => {
         } else {
           // Legacy two-phase projects
           systemPrompt = phase === "brief"
-            ? projectData.phase1_prompt
-            : projectData.phase2_prompt.replace("{{BRIEF_DATA}}", JSON.stringify(briefData || {}));
+            ? projectData.phase1_prompt + GLOBAL_RULES
+            : projectData.phase2_prompt.replace("{{BRIEF_DATA}}", JSON.stringify(briefData || {})) + GLOBAL_RULES;
         }
       } else {
         // Fallback to general prompts
