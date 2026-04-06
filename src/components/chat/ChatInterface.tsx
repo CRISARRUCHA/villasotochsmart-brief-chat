@@ -40,6 +40,12 @@ export interface ChatInterfaceProps {
   primaryColor?: string;
   accentColor?: string;
   showSuggestions?: boolean;
+  completionTitle?: string;
+  completionSubtitle?: string;
+  completionNextLabel?: string;
+  completionNextText?: string;
+  completionLinkUrl?: string;
+  completionLinkText?: string;
 }
 
 export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true }: ChatInterfaceProps) => {
