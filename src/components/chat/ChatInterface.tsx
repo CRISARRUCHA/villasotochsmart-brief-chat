@@ -65,6 +65,19 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  const dictation = useDictation({
+    onResult: (transcript) => setInput(transcript),
+  });
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setInput(prev => prev + text);
+    } catch {
+      // silently fail
+    }
+  };
+
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
