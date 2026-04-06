@@ -71,8 +71,13 @@ export function useDictation({ lang = "es-MX", onResult, onProcessed, onEnd }: U
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch (err) {
+      console.error("Failed to start speech recognition:", err);
+      setIsListening(false);
+    }
   }, [isSupported, lang, onResult, onEnd, onProcessed]);
 
   const stop = useCallback(() => {
