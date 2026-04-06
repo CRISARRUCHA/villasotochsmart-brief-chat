@@ -366,7 +366,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
 
           {isLoading && <TypingIndicator />}
 
-          {!isLoading && currentSuggestions && currentSuggestions.length > 0 && (
+          {showSuggestions && !isLoading && currentSuggestions && currentSuggestions.length > 0 && (
             <SuggestionChips suggestions={currentSuggestions} onSelect={sendMessage} />
           )}
 
