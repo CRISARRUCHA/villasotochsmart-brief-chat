@@ -152,6 +152,30 @@ const Dashboard = () => {
     }
   };
 
+  const duplicateProject = async (project: Project) => {
+    const newSlug = `${project.slug}-copia-${Date.now().toString(36)}`;
+    const { data, error } = await supabase.from("projects").insert({
+      name: `${project.name} (copia)`,
+      slug: newSlug,
+      description: project.description,
+      prompt: project.prompt,
+      phase1_prompt: project.phase1_prompt,
+      phase2_prompt: project.phase2_prompt,
+      initial_message: project.initial_message,
+      landing_title: project.landing_title,
+      landing_subtitle: project.landing_subtitle,
+      landing_cta: project.landing_cta,
+      primary_color: project.primary_color,
+      accent_color: project.accent_color,
+    }).select().single();
+    if (error) {
+      toast.error("Error al duplicar proyecto");
+    } else {
+      setProjects(prev => [data as unknown as Project, ...prev]);
+      toast.success("Proyecto duplicado");
+    }
+  };
+
   const deleteBrief = async (id: string) => {
     const { error } = await supabase.from("briefs").delete().eq("id", id);
     if (error) {
