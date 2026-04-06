@@ -169,6 +169,7 @@ const Dashboard = () => {
       landing_cta: project.landing_cta,
       primary_color: project.primary_color,
       accent_color: project.accent_color,
+      show_suggestions: project.show_suggestions,
     }).select().single();
     if (error) {
       toast.error("Error al duplicar proyecto");
