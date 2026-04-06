@@ -357,9 +357,8 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
                   <button
                     onClick={() => sendMessage(input)}
                     disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white hover:brightness-110 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:brightness-110 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 ${primaryColor ? "text-white" : "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(20,136,252,0.3)]"}`}
                     style={primaryColor ? buttonStyle : undefined}
-                    {...(!primaryColor ? { className: "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary hover:brightness-110 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-[0_0_20px_rgba(20,136,252,0.3)]" } : {})}
                   >
                     <span className="hidden sm:inline">Enviar</span>
                     <SendHorizontal size={16} />
