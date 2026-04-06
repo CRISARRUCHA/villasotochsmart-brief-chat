@@ -106,13 +106,24 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
   };
 
   const applyUpdates = async (updates: Record<string, any>) => {
+    const isSinglePhaseProject = !!form.prompt;
     const newForm = { ...form };
+
     if (updates.name) newForm.name = updates.name;
     if (updates.slug) newForm.slug = updates.slug;
     if (updates.description !== undefined) newForm.description = updates.description;
-    if (updates.prompt) newForm.prompt = updates.prompt;
-    if (updates.phase1_prompt) newForm.phase1_prompt = updates.phase1_prompt;
-    if (updates.phase2_prompt) newForm.phase2_prompt = updates.phase2_prompt;
+
+    if (isSinglePhaseProject) {
+      const nextPrompt = updates.prompt ?? updates.phase1_prompt;
+      if (typeof nextPrompt === "string" && nextPrompt.trim()) {
+        newForm.prompt = nextPrompt;
+        newForm.phase1_prompt = nextPrompt;
+      }
+    } else {
+      if (updates.phase1_prompt) newForm.phase1_prompt = updates.phase1_prompt;
+      if (updates.phase2_prompt) newForm.phase2_prompt = updates.phase2_prompt;
+    }
+
     if (updates.initial_message) newForm.initial_message = updates.initial_message;
     if (updates.landing_title) newForm.landing_title = updates.landing_title;
     if (updates.landing_subtitle) newForm.landing_subtitle = updates.landing_subtitle;
@@ -132,9 +143,10 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
       primary_color: newForm.primary_color,
       accent_color: newForm.accent_color,
     };
-    if (newForm.prompt) {
+    if (isSinglePhaseProject) {
       updateData.prompt = newForm.prompt;
-      updateData.phase1_prompt = newForm.prompt;
+      updateData.phase1_prompt = newForm.prompt || "";
+      updateData.phase2_prompt = newForm.phase2_prompt;
     } else {
       updateData.phase1_prompt = newForm.phase1_prompt;
       updateData.phase2_prompt = newForm.phase2_prompt;
