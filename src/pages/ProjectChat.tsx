@@ -53,6 +53,7 @@ const ProjectChat = () => {
       singlePhase={isSinglePhase}
       primaryColor={config.primary_color || undefined}
       accentColor={config.accent_color || undefined}
+      showSuggestions={config.show_suggestions}
     />
   );
 };
