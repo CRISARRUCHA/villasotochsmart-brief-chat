@@ -39,9 +39,10 @@ export interface ChatInterfaceProps {
   singlePhase?: boolean;
   primaryColor?: string;
   accentColor?: string;
+  showSuggestions?: boolean;
 }
 
-export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor }: ChatInterfaceProps) => {
+export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor, showSuggestions = true }: ChatInterfaceProps) => {
   const storageKey = `chat-session-${project}`;
 
   const getInitialState = () => {
@@ -365,7 +366,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
 
           {isLoading && <TypingIndicator />}
 
-          {!isLoading && currentSuggestions && currentSuggestions.length > 0 && (
+          {showSuggestions && !isLoading && currentSuggestions && currentSuggestions.length > 0 && (
             <SuggestionChips suggestions={currentSuggestions} onSelect={sendMessage} />
           )}
 

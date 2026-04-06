@@ -86,6 +86,7 @@ interface Project {
   landing_cta: string | null;
   primary_color: string | null;
   accent_color: string | null;
+  show_suggestions: boolean;
   created_at: string;
 }
 
@@ -138,7 +139,7 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("projects")
-      .select("id, name, slug, description, prompt, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, primary_color, accent_color, created_at")
+      .select("id, name, slug, description, prompt, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, primary_color, accent_color, show_suggestions, created_at")
       .order("created_at", { ascending: false });
     setProjects((data as unknown as Project[]) || []);
   };
@@ -168,6 +169,7 @@ const Dashboard = () => {
       landing_cta: project.landing_cta,
       primary_color: project.primary_color,
       accent_color: project.accent_color,
+      show_suggestions: project.show_suggestions,
     }).select().single();
     if (error) {
       toast.error("Error al duplicar proyecto");

@@ -19,6 +19,7 @@ interface ProjectData {
   landing_cta: string | null;
   primary_color: string | null;
   accent_color: string | null;
+  show_suggestions: boolean;
 }
 
 interface EditProjectModalProps {
@@ -78,6 +79,7 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         landing_cta: form.landing_cta,
         primary_color: form.primary_color,
         accent_color: form.accent_color,
+        show_suggestions: form.show_suggestions,
       };
 
       if (isSinglePhase) {
@@ -372,6 +374,21 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
                   </div>
                 );
               })}
+            </div>
+
+            {/* Toggle sugerencias */}
+            <div className="px-1 pt-3 pb-1 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Sugerencias (chips)</p>
+                <p className="text-xs text-muted-foreground">Mostrar opciones de respuesta rápida en el chat</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(prev => ({ ...prev, show_suggestions: !prev.show_suggestions }))}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.show_suggestions ? 'bg-primary' : 'bg-secondary'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.show_suggestions ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
             </div>
 
             <div className="border-t border-border p-4 flex justify-end">

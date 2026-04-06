@@ -9,6 +9,7 @@ interface ProjectConfig {
   prompt: string | null;
   primary_color: string | null;
   accent_color: string | null;
+  show_suggestions: boolean;
 }
 
 const ProjectChat = () => {
@@ -23,7 +24,7 @@ const ProjectChat = () => {
       if (!slug) return;
       const { data } = await supabase
         .from("projects")
-        .select("initial_message, slug, prompt, primary_color, accent_color")
+        .select("initial_message, slug, prompt, primary_color, accent_color, show_suggestions")
         .eq("slug", slug)
         .single();
       if (data) {
@@ -52,6 +53,7 @@ const ProjectChat = () => {
       singlePhase={isSinglePhase}
       primaryColor={config.primary_color || undefined}
       accentColor={config.accent_color || undefined}
+      showSuggestions={config.show_suggestions}
     />
   );
 };
