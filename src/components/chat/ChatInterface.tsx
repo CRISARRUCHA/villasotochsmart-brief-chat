@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, Mic, MicOff, ClipboardPaste } from "lucide-react";
+import { useDictation } from "@/hooks/use-dictation";
 import TextareaAutosize from "react-textarea-autosize";
 import { ChatHeader } from "./ChatHeader";
 import { MessageBubble } from "./MessageBubble";
