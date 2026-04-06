@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { SendHorizontal, X, Sparkles, Mic, MicOff, ClipboardPaste } from "lucide-react";
 import { useDictation } from "@/hooks/use-dictation";
-import { toast } from "sonner";
 import TextareaAutosize from "react-textarea-autosize";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
