@@ -10,12 +10,15 @@ interface ProjectData {
   name: string;
   slug: string;
   description: string | null;
+  prompt: string | null;
   phase1_prompt: string;
   phase2_prompt: string;
   initial_message: string;
   landing_title: string | null;
   landing_subtitle: string | null;
   landing_cta: string | null;
+  primary_color: string | null;
+  accent_color: string | null;
 }
 
 interface EditProjectModalProps {
@@ -37,9 +40,8 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
   const [saving, setSaving] = useState(false);
   const [expandedFields, setExpandedFields] = useState<Record<string, boolean>>({});
 
-  // AI chat state
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: `📝 **Editando "${project.name}"**\n\nDime qué quieres cambiar. Puedo modificar los prompts, el mensaje inicial, la landing page, o cualquier otro aspecto del proyecto.` },
+    { role: "assistant", content: `📝 **Editando "${project.name}"**\n\nDime qué quieres cambiar. Puedo modificar el prompt, el mensaje inicial, la landing page, los colores, o cualquier otro aspecto del proyecto.` },
   ]);
   const [apiMessages, setApiMessages] = useState<Array<{ role: string; content: string }>>([
     { role: "assistant", content: `Editando "${project.name}". Dime qué quieres cambiar.` },
@@ -61,20 +63,33 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
     setExpandedFields(prev => ({ ...prev, [field]: !prev[field] }));
   };
 
+  const isSinglePhase = !!form.prompt;
+
   const handleManualSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase.from("projects").update({
+      const updateData: any = {
         name: form.name,
         slug: form.slug,
         description: form.description,
-        phase1_prompt: form.phase1_prompt,
-        phase2_prompt: form.phase2_prompt,
         initial_message: form.initial_message,
         landing_title: form.landing_title,
         landing_subtitle: form.landing_subtitle,
         landing_cta: form.landing_cta,
-      }).eq("id", project.id);
+        primary_color: form.primary_color,
+        accent_color: form.accent_color,
+      };
+
+      if (isSinglePhase) {
+        updateData.prompt = form.prompt;
+        updateData.phase1_prompt = form.prompt || "";
+        updateData.phase2_prompt = form.phase2_prompt;
+      } else {
+        updateData.phase1_prompt = form.phase1_prompt;
+        updateData.phase2_prompt = form.phase2_prompt;
+      }
+
+      const { error } = await supabase.from("projects").update(updateData).eq("id", project.id);
 
       if (error) {
         if (error.code === "23505") toast.error("Ya existe un proyecto con ese slug");
@@ -143,7 +158,6 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         }
       }
 
-      // Check for update action
       const actionMatch = assistantContent.match(/\{"action"\s*:\s*"update_project"[\s\S]*$/);
       if (actionMatch) {
         try {
@@ -154,26 +168,37 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
             if (updates.name) newForm.name = updates.name;
             if (updates.slug) newForm.slug = updates.slug;
             if (updates.description !== undefined) newForm.description = updates.description;
+            if (updates.prompt) newForm.prompt = updates.prompt;
             if (updates.phase1_prompt) newForm.phase1_prompt = updates.phase1_prompt;
             if (updates.phase2_prompt) newForm.phase2_prompt = updates.phase2_prompt;
             if (updates.initial_message) newForm.initial_message = updates.initial_message;
             if (updates.landing_title) newForm.landing_title = updates.landing_title;
             if (updates.landing_subtitle) newForm.landing_subtitle = updates.landing_subtitle;
             if (updates.landing_cta) newForm.landing_cta = updates.landing_cta;
+            if (updates.primary_color) newForm.primary_color = updates.primary_color;
+            if (updates.accent_color) newForm.accent_color = updates.accent_color;
             setForm(newForm);
 
-            // Auto-save
-            const { error } = await supabase.from("projects").update({
+            const updateData: any = {
               name: newForm.name,
               slug: newForm.slug,
               description: newForm.description,
-              phase1_prompt: newForm.phase1_prompt,
-              phase2_prompt: newForm.phase2_prompt,
               initial_message: newForm.initial_message,
               landing_title: newForm.landing_title,
               landing_subtitle: newForm.landing_subtitle,
               landing_cta: newForm.landing_cta,
-            }).eq("id", project.id);
+              primary_color: newForm.primary_color,
+              accent_color: newForm.accent_color,
+            };
+            if (newForm.prompt) {
+              updateData.prompt = newForm.prompt;
+              updateData.phase1_prompt = newForm.prompt;
+            } else {
+              updateData.phase1_prompt = newForm.phase1_prompt;
+              updateData.phase2_prompt = newForm.phase2_prompt;
+            }
+
+            const { error } = await supabase.from("projects").update(updateData).eq("id", project.id);
 
             if (error) {
               toast.error("Error al guardar cambios");
@@ -208,14 +233,19 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
     { key: "landing_title", label: "Título landing" },
     { key: "landing_subtitle", label: "Subtítulo landing" },
     { key: "landing_cta", label: "CTA landing" },
-    { key: "phase1_prompt", label: "Prompt Fase 1", long: true },
-    { key: "phase2_prompt", label: "Prompt Fase 2", long: true },
+    { key: "primary_color", label: "Color primario (hex)" },
+    { key: "accent_color", label: "Color de acento (hex)" },
+    ...(isSinglePhase
+      ? [{ key: "prompt" as keyof typeof form, label: "Prompt (fase única)", long: true }]
+      : [
+          { key: "phase1_prompt" as keyof typeof form, label: "Prompt Fase 1", long: true },
+          { key: "phase2_prompt" as keyof typeof form, label: "Prompt Fase 2", long: true },
+        ]),
   ];
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-background border border-border rounded-2xl w-full max-w-3xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-4">
             <h2 className="text-sm font-semibold text-foreground">Editar proyecto</h2>
@@ -241,7 +271,6 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
 
         {mode === "manual" ? (
           <>
-            {/* Manual edit form */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
               {FIELDS.map(({ key, label, long }) => {
                 const isExpanded = expandedFields[key] || !long;
@@ -272,6 +301,22 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
                         maxRows={15}
                         className="w-full resize-none bg-secondary/50 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono text-xs"
                       />
+                    ) : key === "primary_color" || key === "accent_color" ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={value || "#1488fc"}
+                          onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
+                          className="w-8 h-8 rounded border-0 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
+                          placeholder="#1488fc"
+                          className="flex-1 bg-secondary/50 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono"
+                        />
+                      </div>
                     ) : (
                       <input
                         type="text"
@@ -285,7 +330,6 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
               })}
             </div>
 
-            {/* Save button */}
             <div className="border-t border-border p-4 flex justify-end">
               <button
                 onClick={handleManualSave}
@@ -298,7 +342,6 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
           </>
         ) : (
           <>
-            {/* AI Chat */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -322,7 +365,6 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
               )}
             </div>
 
-            {/* Input */}
             <div className="border-t border-border p-3">
               <div className="relative rounded-xl bg-card ring-1 ring-border">
                 <TextareaAutosize
