@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp,
   Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen,
-  ExternalLink, Copy, Pencil, LayoutGrid, List, Inbox, Hash
+  ExternalLink, Copy, Pencil, LayoutGrid, List, Inbox, Hash, CopyPlus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
