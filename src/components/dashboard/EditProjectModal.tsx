@@ -79,6 +79,7 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         landing_cta: form.landing_cta,
         primary_color: form.primary_color,
         accent_color: form.accent_color,
+        show_suggestions: form.show_suggestions,
       };
 
       if (isSinglePhase) {
