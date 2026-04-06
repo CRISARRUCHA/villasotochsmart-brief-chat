@@ -86,6 +86,12 @@ export const EditProjectModal = ({ project, onSaved, onClose }: EditProjectModal
         primary_color: form.primary_color,
         accent_color: form.accent_color,
         show_suggestions: form.show_suggestions,
+        completion_title: form.completion_title,
+        completion_subtitle: form.completion_subtitle,
+        completion_next_label: form.completion_next_label,
+        completion_next_text: form.completion_next_text,
+        completion_link_url: form.completion_link_url,
+        completion_link_text: form.completion_link_text,
       };
 
       if (isSinglePhase) {
