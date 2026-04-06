@@ -72,12 +72,15 @@ interface Project {
   name: string;
   slug: string;
   description: string | null;
+  prompt: string | null;
   phase1_prompt: string;
   phase2_prompt: string;
   initial_message: string;
   landing_title: string | null;
   landing_subtitle: string | null;
   landing_cta: string | null;
+  primary_color: string | null;
+  accent_color: string | null;
   created_at: string;
 }
 
@@ -129,7 +132,7 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     const { data } = await supabase
       .from("projects")
-      .select("id, name, slug, description, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, created_at")
+      .select("id, name, slug, description, prompt, phase1_prompt, phase2_prompt, initial_message, landing_title, landing_subtitle, landing_cta, primary_color, accent_color, created_at")
       .order("created_at", { ascending: false });
     setProjects((data as unknown as Project[]) || []);
   };

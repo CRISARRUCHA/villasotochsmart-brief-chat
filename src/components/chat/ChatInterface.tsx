@@ -27,21 +27,20 @@ const INITIAL_MESSAGES: Record<string, DisplayMessage> = {
     role: "assistant",
     content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu negocio y entender qué necesitas para tu nuevo sitio web. Nosotros nos encargamos de toda la parte técnica — tú solo cuéntame sobre tu negocio y lo que te gustaría comunicar.\n\n**Es muy sencillo:** solo responde mis preguntas con la mayor honestidad posible. No hay respuestas incorrectas. 🚀\n\nEmpecemos — **¿cómo te llamas y cuál es el nombre de tu negocio o proyecto?**",
   },
-  "villas-otoch": {
-    role: "assistant",
-    content: "👋 **¡Hola! Soy el asistente de Im-Pulsa Web.**\n\nEstoy aquí para conocer tu visión sobre el **Proyecto Social Villas Otoch**. Queremos entender qué objetivos tiene tu dependencia y qué esperas del sitio web del proyecto.\n\n**Es muy sencillo:** solo responde mis preguntas con honestidad. Tu perspectiva es muy valiosa para crear algo que represente a todos. 🚀\n\nEmpecemos — **¿cómo te llamas y qué dependencia u organización representas?**",
-  },
 };
 
 const PHASE1_TOPICS = 8;
 const PHASE2_TOPICS = 8;
 
-interface ChatInterfaceProps {
+export interface ChatInterfaceProps {
   project?: string;
   initialMessageOverride?: string;
+  singlePhase?: boolean;
+  primaryColor?: string;
+  accentColor?: string;
 }
 
-export const ChatInterface = ({ project = "general", initialMessageOverride }: ChatInterfaceProps) => {
+export const ChatInterface = ({ project = "general", initialMessageOverride, singlePhase = false, primaryColor, accentColor }: ChatInterfaceProps) => {
   const baseMessage = initialMessageOverride
     ? { role: "assistant" as const, content: initialMessageOverride }
     : (INITIAL_MESSAGES[project] || INITIAL_MESSAGES.general);
@@ -73,7 +72,6 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
 
   useEffect(scrollToBottom, [messages, isLoading, scrollToBottom]);
 
-  // Mobile keyboard fix: scroll input into view when focused
   useEffect(() => {
     const handleResize = () => {
       if (document.activeElement === inputRef.current) {
@@ -82,7 +80,6 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
         }, 100);
       }
     };
-    
     const visualViewport = window.visualViewport;
     if (visualViewport) {
       visualViewport.addEventListener("resize", handleResize);
@@ -92,15 +89,19 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
 
   const estimateProgress = useCallback((msgCount: number, currentPhase: Phase) => {
     if (currentPhase === "done") return 100;
+    if (singlePhase) {
+      // Single phase: progress from 0 to 100
+      const userMsgCount = Math.floor(msgCount / 2);
+      return Math.min(Math.round((userMsgCount / 10) * 95), 95);
+    }
     const totalTopics = currentPhase === "brief" ? PHASE1_TOPICS : PHASE2_TOPICS;
     const userMsgCount = Math.floor(msgCount / 2);
     const baseProgress = currentPhase === "full" ? 50 : 0;
     const phaseProgress = Math.min((userMsgCount / totalTopics) * 50, 48);
     return Math.round(baseProgress + phaseProgress);
-  }, []);
+  }, [singlePhase]);
 
   const extractNameFromChat = useCallback((chatHistory: Message[]): string | null => {
-    // Find the first user message (their name + business intro)
     const firstUserMsg = chatHistory.find(m => m.role === "user");
     if (!firstUserMsg) return null;
     return firstUserMsg.content.substring(0, 100).trim() || null;
@@ -116,12 +117,13 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
           const clientName =
             payload.data.nombre_negocio ||
             payload.data.nombre_contacto ||
+            payload.data.name ||
+            payload.data.contact_name ||
             extractNameFromChat(payload.chatHistory);
 
           const idToUse = briefIdRef.current ?? crypto.randomUUID();
           
           if (briefIdRef.current) {
-            // Update existing
             const { error } = await supabase.from("briefs").update({
               client_name: clientName,
               brief_data: payload.data,
@@ -135,7 +137,6 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
               return;
             }
           } else {
-            // Insert new
             const { error } = await supabase.from("briefs").insert({
               id: idToUse,
               client_name: clientName,
@@ -152,7 +153,6 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
             }
           }
 
-
           if (!briefIdRef.current) {
             briefIdRef.current = idToUse;
             setBriefId(idToUse);
@@ -161,7 +161,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
           console.error("Error saving brief:", err);
         }
       });
-  }, [extractNameFromChat]);
+  }, [extractNameFromChat, project]);
 
   const sendMessage = async (text: string) => {
     if ((!text.trim() && pendingFiles.length === 0) || isLoading) return;
@@ -188,7 +188,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
     try {
       await streamChat({
         messages: newApiMessages,
-        phase,
+        phase: singlePhase ? "brief" : phase,
         briefData: phase === "full" ? briefData : undefined,
         project,
         onDelta: (chunk) => {
@@ -210,11 +210,21 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
           const finalMsg: DisplayMessage = { role: "assistant", content: cleanText, suggestions };
 
           if (action?.action === "generate_brief") {
-            finalMsg.briefData = action.data;
-            finalMsg.briefType = "preliminary";
-            setBriefData(action.data);
-            setProgress(50);
-            saveBrief(action.data, null, "brief", fullChatHistoryRef.current);
+            if (singlePhase) {
+              // Single phase: this IS the complete brief
+              finalMsg.briefData = action.data;
+              finalMsg.briefType = "full";
+              setPhase("done");
+              setProgress(100);
+              saveBrief(action.data, action.data, "done", fullChatHistoryRef.current);
+            } else {
+              // Legacy two-phase: this is the preliminary brief
+              finalMsg.briefData = action.data;
+              finalMsg.briefType = "preliminary";
+              setBriefData(action.data);
+              setProgress(50);
+              saveBrief(action.data, null, "brief", fullChatHistoryRef.current);
+            }
           } else if (action?.action === "generate_full_brief") {
             const merged = { ...briefData, ...action.data };
             finalMsg.briefData = merged;
@@ -246,8 +256,8 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
   };
 
   const handleContinueToPhase2 = () => {
+    if (singlePhase) return; // Should not happen in single phase
     setPhase("full");
-    // Keep fullChatHistoryRef intact — don't reset it
     setApiMessages([]);
     setCurrentSuggestions(undefined);
     const introMsg: DisplayMessage = {
@@ -268,16 +278,23 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
     }
   };
 
+  // Dynamic theming styles
+  const buttonStyle = primaryColor ? {
+    backgroundColor: primaryColor,
+    boxShadow: `0 0 20px ${primaryColor}4D`,
+  } : {};
+
+  const headerPrimaryColor = primaryColor;
+
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
-      <ChatHeader phase={phase} progress={progress} />
+      <ChatHeader phase={phase} progress={progress} singlePhase={singlePhase} primaryColor={headerPrimaryColor} />
 
-      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
         <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-5 pb-4">
           {messages.map((m, i) => (
             <div key={i} className="space-y-3">
-              {m.content && <MessageBubble role={m.role} content={m.content} />}
+              {m.content && <MessageBubble role={m.role} content={m.content} primaryColor={primaryColor} />}
               {m.files && m.files.length > 0 && (
                 <div className={m.role === "user" ? "ml-8 sm:ml-12 flex justify-end" : "mr-8 sm:mr-12"}>
                   <FileAttachments files={m.files} />
@@ -307,7 +324,6 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
         </div>
       </div>
 
-      {/* Input */}
       {phase !== "done" && (
         <footer className="border-t border-border bg-background sticky bottom-0 z-10">
           <PendingFilesPreview
@@ -341,7 +357,8 @@ export const ChatInterface = ({ project = "general", initialMessageOverride }: C
                   <button
                     onClick={() => sendMessage(input)}
                     disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary hover:brightness-110 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-[0_0_20px_rgba(20,136,252,0.3)]"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:brightness-110 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 ${primaryColor ? "text-white" : "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(20,136,252,0.3)]"}`}
+                    style={primaryColor ? buttonStyle : undefined}
                   >
                     <span className="hidden sm:inline">Enviar</span>
                     <SendHorizontal size={16} />

@@ -1,14 +1,19 @@
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 
-
-interface MessageBubbleProps {
+export interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
+  primaryColor?: string;
 }
 
-export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
+export const MessageBubble = ({ role, content, primaryColor }: MessageBubbleProps) => {
   const isAssistant = role === "assistant";
+
+  const userBubbleStyle = primaryColor ? {
+    backgroundColor: primaryColor,
+    boxShadow: `0 0 16px ${primaryColor}33`,
+  } : undefined;
 
   return (
     <motion.div
@@ -18,7 +23,14 @@ export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
       className={`flex items-start gap-3 ${isAssistant ? "mr-8 sm:mr-12" : "ml-8 sm:ml-12 justify-end"}`}
     >
       {isAssistant && (
-        <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20 p-1">
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-1 ring-1 p-1"
+          style={primaryColor ? {
+            backgroundColor: `${primaryColor}26`,
+            borderColor: `${primaryColor}33`,
+          } : undefined}
+          {...(!primaryColor ? { className: "w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-1 ring-1 ring-primary/20 p-1" } : {})}
+        >
           <img src="/lovable-uploads/icono-blanco.png" alt="iW" className="w-full h-full object-contain" />
         </div>
       )}
@@ -26,8 +38,10 @@ export const MessageBubble = ({ role, content }: MessageBubbleProps) => {
         className={
           isAssistant
             ? "bg-card text-foreground rounded-2xl rounded-tl-none px-4 py-3 shadow-message ring-1 ring-white/[0.06]"
-            : "bg-primary text-primary-foreground rounded-2xl rounded-tr-none px-4 py-3 shadow-[0_0_16px_rgba(20,136,252,0.2)]"
+            : "text-white rounded-2xl rounded-tr-none px-4 py-3"
         }
+        style={!isAssistant ? (userBubbleStyle || undefined) : undefined}
+        {...(!isAssistant && !userBubbleStyle ? { className: "bg-primary text-primary-foreground rounded-2xl rounded-tr-none px-4 py-3 shadow-[0_0_16px_rgba(20,136,252,0.2)]" } : {})}
       >
         <div className="text-[15px] leading-relaxed prose prose-sm prose-invert max-w-none prose-p:my-1 prose-headings:text-inherit prose-strong:text-inherit">
           <ReactMarkdown>{content}</ReactMarkdown>
