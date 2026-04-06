@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, Mic, MicOff, ClipboardPaste } from "lucide-react";
+import { useDictation } from "@/hooks/use-dictation";
 import TextareaAutosize from "react-textarea-autosize";
 import { ChatHeader } from "./ChatHeader";
 import { MessageBubble } from "./MessageBubble";
@@ -63,6 +64,19 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const dictation = useDictation({
+    onResult: (transcript) => setInput(transcript),
+  });
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setInput(prev => prev + text);
+    } catch {
+      // silently fail
+    }
+  };
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
@@ -343,17 +357,35 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
                       inputRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
                     }, 300);
                   }}
-                  placeholder="Escribe tu respuesta..."
+                  placeholder={dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
                   maxRows={4}
                   className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
                 />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <FileUploadButton
-                    briefId={briefId}
-                    onFilesUploaded={(files) => setPendingFiles(prev => [...prev, ...files])}
-                    pendingFiles={pendingFiles}
-                    onRemoveFile={(idx) => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
-                  />
+                  <div className="flex items-center gap-1">
+                    <FileUploadButton
+                      briefId={briefId}
+                      onFilesUploaded={(files) => setPendingFiles(prev => [...prev, ...files])}
+                      pendingFiles={pendingFiles}
+                      onRemoveFile={(idx) => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                    />
+                    {dictation.isSupported && (
+                      <button
+                        onClick={dictation.toggle}
+                        className={`p-2 rounded-lg transition-colors ${dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                        title={dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
+                      >
+                        {dictation.isListening ? <MicOff size={16} /> : <Mic size={16} />}
+                      </button>
+                    )}
+                    <button
+                      onClick={handlePaste}
+                      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                      title="Pegar desde portapapeles"
+                    >
+                      <ClipboardPaste size={16} />
+                    </button>
+                  </div>
                   <button
                     onClick={() => sendMessage(input)}
                     disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
