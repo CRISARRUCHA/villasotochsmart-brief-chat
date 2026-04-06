@@ -176,6 +176,12 @@ const Dashboard = () => {
       primary_color: project.primary_color,
       accent_color: project.accent_color,
       show_suggestions: project.show_suggestions,
+      completion_title: project.completion_title,
+      completion_subtitle: project.completion_subtitle,
+      completion_next_label: project.completion_next_label,
+      completion_next_text: project.completion_next_text,
+      completion_link_url: project.completion_link_url,
+      completion_link_text: project.completion_link_text,
     }).select().single();
     if (error) {
       toast.error("Error al duplicar proyecto");
