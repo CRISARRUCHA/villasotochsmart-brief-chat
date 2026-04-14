@@ -362,8 +362,9 @@ const BriefViewer = () => {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.06] mt-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-center gap-2">
-          <img src={logoHorizontal} alt="Im-Pulsa Web" className="h-5 opacity-40" />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col items-center justify-center gap-1">
+          <img src={logoHorizontal} alt="Im-Pulsa" className="h-6 opacity-50" />
+          <span className="text-[10px] text-muted-foreground/40 tracking-wide uppercase">Agencia de Automatizaciones y Tecnología</span>
         </div>
       </footer>
     </div>

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Rocket } from "lucide-react";
-import logoHorizontal from "@/assets/logo-horizontal.png";
+import logoImpulsa from "@/assets/logo-impulsa.png";
 
 export interface CompletionScreenProps {
   title?: string;
@@ -64,9 +64,9 @@ export const CompletionScreen = ({
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
-        className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center mb-6 ring-2 ring-primary/20 p-4"
+        className="w-28 h-28 rounded-full bg-primary/15 flex items-center justify-center mb-6 ring-2 ring-primary/20 p-5"
       >
-        <img src={logoHorizontal} alt="Im-Pulsa Web" className="w-full h-full object-contain" />
+        <img src={logoImpulsa} alt="Im-Pulsa" className="w-full h-full object-contain" />
       </motion.div>
 
       <motion.h2

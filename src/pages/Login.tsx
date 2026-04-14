@@ -28,8 +28,9 @@ const Login = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-1">
-          <img src={logoWhite} alt="Im-Pulsa Web" className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-6" />
-          <h1 className="text-xl font-semibold text-foreground">Brief IA</h1>
+          <img src={logoWhite} alt="Im-Pulsa" className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-6" />
+          <h1 className="text-xl font-semibold text-foreground">Im-Pulsa</h1>
+          <p className="text-xs text-primary/70 font-medium tracking-wide uppercase mb-1">Agencia de Automatizaciones y Tecnología</p>
           <p className="text-sm text-muted-foreground">Panel de administración</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

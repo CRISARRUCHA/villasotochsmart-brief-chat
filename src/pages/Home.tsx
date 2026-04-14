@@ -54,12 +54,12 @@ const Home = () => {
               />
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold text-foreground tracking-tight">
-              Im-Pulsa{" "}
-              <span className="bg-gradient-to-b from-[hsl(211,96%,68%)] to-primary bg-clip-text text-transparent">
-                Web
-              </span>
+              Im-Pulsa
             </h1>
-            <p className="text-sm sm:text-lg text-muted-foreground max-w-md">
+            <p className="text-xs sm:text-sm text-primary/80 font-medium tracking-wide uppercase">
+              Agencia de Automatizaciones y Tecnología
+            </p>
+            <p className="text-sm sm:text-lg text-muted-foreground max-w-md mt-2">
               Crea el brief perfecto para tu sitio web en minutos — solo
               conversando con nuestro asistente de IA.
             </p>

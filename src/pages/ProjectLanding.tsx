@@ -124,6 +124,9 @@ const ProjectLanding = () => {
             <h1 className="text-3xl sm:text-5xl font-bold text-foreground tracking-tight">
               {project.landing_title || project.name}
             </h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground/60 font-medium tracking-widest uppercase mt-1">
+              Powered by Im-Pulsa · Automatizaciones y Tecnología
+            </p>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-md">
               {project.landing_subtitle || "Cuéntanos sobre tu proyecto para crear algo extraordinario."}
             </p>
