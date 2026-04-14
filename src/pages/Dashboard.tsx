@@ -452,10 +452,9 @@ const Dashboard = () => {
     const color = project.primary_color || "hsl(var(--primary))";
 
     return (
-      <motion.div
+      <GradientCard
         key={project.id}
-        layout
-        className="border border-border rounded-2xl bg-background overflow-hidden group"
+        glowColor={color}
       >
         {/* Color accent bar */}
         <div className="h-1 w-full" style={{ background: color }} />
@@ -532,7 +531,7 @@ const Dashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </GradientCard>
     );
   };
 
