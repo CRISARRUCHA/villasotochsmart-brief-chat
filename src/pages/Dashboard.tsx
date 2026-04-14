@@ -107,7 +107,7 @@ const Dashboard = () => {
   const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({});
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const navigate = useNavigate();
 
   useEffect(() => {
