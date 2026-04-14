@@ -419,7 +419,17 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-end">
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      const url = `${window.location.origin}/brief/${brief.id}`;
+                      navigator.clipboard.writeText(url);
+                      toast.success("Enlace del brief copiado");
+                    }}
+                    className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <ExternalLink size={11} /> Compartir
+                  </button>
                   <button
                     onClick={() => deleteBrief(brief.id)}
                     className="flex items-center gap-1 text-[11px] text-destructive hover:text-destructive/80 transition-colors"
