@@ -467,6 +467,7 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
           </div>
         </footer>
       )}
+      </div>
     </div>
   );
 };
