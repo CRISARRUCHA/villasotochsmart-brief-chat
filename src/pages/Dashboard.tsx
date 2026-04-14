@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { CreateProjectChat } from "@/components/dashboard/CreateProjectChat";
 import { EditProjectModal } from "@/components/dashboard/EditProjectModal";
+import { GradientCard } from "@/components/ui/gradient-card";
 
 interface Brief {
   id: string;
@@ -451,15 +452,14 @@ const Dashboard = () => {
     const color = project.primary_color || "hsl(var(--primary))";
 
     return (
-      <motion.div
+      <GradientCard
         key={project.id}
-        layout
-        className="border border-border rounded-2xl bg-background overflow-hidden group"
+        glowColor={color}
       >
         {/* Color accent bar */}
         <div className="h-1 w-full" style={{ background: color }} />
 
-        <div className="p-4 sm:p-5">
+        <div className="p-4 sm:p-5 group">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -531,7 +531,7 @@ const Dashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </GradientCard>
     );
   };
 
