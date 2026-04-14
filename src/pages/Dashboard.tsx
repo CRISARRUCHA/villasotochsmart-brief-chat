@@ -478,13 +478,22 @@ const Dashboard = () => {
               <button onClick={() => copyProjectUrl(project.slug)} className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary" title="Copiar URL">
                 <Share2 size={13} />
               </button>
+              <a 
+                href={`/p/${project.slug}/briefs`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" 
+                title="Ver todos los briefs"
+              >
+                <FolderOpen size={13} />
+              </a>
               <button onClick={() => setEditingProject(project)} className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Editar">
                 <Pencil size={13} />
               </button>
               <button onClick={() => duplicateProject(project)} className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Duplicar">
                 <CopyPlus size={13} />
               </button>
-              <a href={`/p/${project.slug}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Abrir">
+              <a href={`/p/${project.slug}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Abrir landing">
                 <ExternalLink size={13} />
               </a>
               <button onClick={() => deleteProject(project.id)} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-secondary" title="Eliminar">
