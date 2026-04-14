@@ -343,7 +343,21 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
   const headerPrimaryColor = primaryColor;
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-background">
+    <div className="flex flex-col h-[100dvh] bg-gradient-to-b from-[#0f0f0f] via-[#0a0a0a] to-[#060606] relative">
+      {/* Noise texture */}
+      <div
+        className="pointer-events-none fixed inset-0 opacity-[0.03] mix-blend-overlay z-0"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: "128px 128px",
+        }}
+      />
+      {/* Aurora glow */}
+      <div className="pointer-events-none fixed bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-[40%] z-0" style={{ background: `radial-gradient(ellipse at 50% 100%, ${primaryColor || 'hsl(211 96% 54%)'}22 0%, transparent 70%)`, filter: "blur(40px)" }} />
+      <div className="pointer-events-none fixed bottom-0 left-[15%] w-[40%] h-[30%] z-0" style={{ background: "radial-gradient(ellipse at center, rgba(56, 189, 248, 0.08) 0%, transparent 70%)", filter: "blur(30px)" }} />
+      <div className="pointer-events-none fixed bottom-0 right-[15%] w-[35%] h-[25%] z-0" style={{ background: "radial-gradient(ellipse at center, rgba(168, 85, 247, 0.08) 0%, transparent 70%)", filter: "blur(30px)" }} />
+
+      <div className="relative z-10 flex flex-col h-full">
       <ChatHeader phase={phase} progress={progress} singlePhase={singlePhase} primaryColor={headerPrimaryColor} />
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
