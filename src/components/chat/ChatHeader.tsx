@@ -39,11 +39,11 @@ export const ChatHeader = ({ phase, progress, singlePhase, primaryColor }: ChatH
             style={iconStyle || undefined}
             {...(!iconStyle ? { className: "w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(20,136,252,0.4)] p-1.5" } : {})}
           >
-            <img src="/lovable-uploads/icono-blanco.png" alt="Im-Pulsa Web" className="w-full h-full object-contain" />
+            <img src="/lovable-uploads/icono-blanco.png" alt="Im-Pulsa" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-sm font-semibold text-foreground">Im-Pulsa</h1>
-            <p className="text-xs text-muted-foreground">{config.subtitle}</p>
+            <p className="text-[9px] text-muted-foreground/60 font-medium tracking-wide">Automatizaciones y Tecnología</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
