@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import impulsaLogo from "@/assets/impulsa-logo-white.png";
 
 interface Brief {
   id: string;
@@ -605,15 +606,9 @@ export default function ProjectBriefsViewer() {
       {/* Header */}
       <header className="relative z-10 border-b border-white/[0.06] backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground mb-1">
-                {project.landing_title || project.name}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {project.landing_subtitle || project.description || "Briefs del proyecto"}
-              </p>
-            </div>
+          {/* Logo prominente */}
+          <div className="flex items-center justify-between mb-5">
+            <img src={impulsaLogo} alt="Im-Pulsa" className="h-10 opacity-90" />
             <button
               onClick={copyShareUrl}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] transition-colors text-sm font-medium shrink-0 border border-white/[0.06]"
@@ -621,6 +616,14 @@ export default function ProjectBriefsViewer() {
               <Copy size={14} />
               Copiar enlace
             </button>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground mb-1">
+              {project.landing_title || project.name}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {project.landing_subtitle || project.description || "Briefs del proyecto"}
+            </p>
           </div>
           
           <div className="flex items-center justify-between mt-4">
@@ -680,9 +683,12 @@ export default function ProjectBriefsViewer() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] mt-16">
         <div className="max-w-5xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Powered by Im-Pulsa · Agencia de Automatizaciones y Tecnología</span>
-            <span>{new Date().getFullYear()}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={impulsaLogo} alt="Im-Pulsa" className="h-6 opacity-60" />
+              <span className="text-xs text-muted-foreground">Agencia de Automatizaciones y Tecnología</span>
+            </div>
+            <span className="text-xs text-muted-foreground">{new Date().getFullYear()}</span>
           </div>
         </div>
       </footer>
