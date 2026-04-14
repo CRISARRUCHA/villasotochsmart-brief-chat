@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import ProjectLanding from "./pages/ProjectLanding.tsx";
 import ProjectChat from "./pages/ProjectChat.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import BriefViewer from "./pages/BriefViewer.tsx";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,9 @@ const App = () => (
           {/* Dynamic project routes */}
           <Route path="/p/:slug" element={<ProjectLanding />} />
           <Route path="/p/:slug/chat" element={<ProjectChat />} />
-          {/* Legacy routes */}
+            {/* Public brief viewer */}
+            <Route path="/brief/:id" element={<BriefViewer />} />
+            {/* Legacy routes */}
           <Route path="/villas-otoch" element={<ProjectLanding />} />
           <Route path="/villas-otoch/chat" element={<ProjectChat />} />
           <Route path="*" element={<NotFound />} />
