@@ -11,7 +11,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
-import impulsaLogo from "@/assets/impulsa-logo-white.png";
+import headerLogo from "@/assets/header-logo.png";
+import footerLogo from "@/assets/footer-logo.png";
 
 interface Brief {
   id: string;
@@ -608,7 +609,7 @@ export default function ProjectBriefsViewer() {
         <div className="max-w-5xl mx-auto px-4 py-6">
           {/* Logo prominente */}
           <div className="flex items-center justify-between mb-5">
-            <img src={impulsaLogo} alt="Im-Pulsa" className="h-10 opacity-90" />
+            <img src={headerLogo} alt="Im-Pulsa" className="h-10 opacity-90" />
             <button
               onClick={copyShareUrl}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] transition-colors text-sm font-medium shrink-0 border border-white/[0.06]"
@@ -685,7 +686,7 @@ export default function ProjectBriefsViewer() {
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={impulsaLogo} alt="Im-Pulsa" className="h-6 opacity-60" />
+              <img src={footerLogo} alt="Im-Pulsa" className="h-6 opacity-60" />
               <span className="text-xs text-muted-foreground">Agencia de Automatizaciones y Tecnología</span>
             </div>
             <span className="text-xs text-muted-foreground">{new Date().getFullYear()}</span>
