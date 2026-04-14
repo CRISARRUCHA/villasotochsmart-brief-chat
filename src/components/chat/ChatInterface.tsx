@@ -404,68 +404,66 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
       </div>
 
       {phase !== "done" && (
-        <footer className="border-t border-border bg-background sticky bottom-0 z-10">
+        <div className="sticky bottom-0 z-10 pb-4 pt-2 px-3 sm:px-4">
           <PendingFilesPreview
             files={pendingFiles}
             onRemove={(idx) => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
           />
-          <div className="p-3 sm:p-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="relative rounded-2xl bg-card ring-1 ring-white/[0.08] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_2px_20px_rgba(0,0,0,0.4)]">
-                <TextareaAutosize
-                  ref={inputRef}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onFocus={() => {
-                    setTimeout(() => {
-                      inputRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
-                    }, 300);
-                  }}
-                  placeholder={dictation.isProcessing ? "✨ Procesando transcripción..." : dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
-                  maxRows={4}
-                  className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
-                />
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <FileUploadButton
-                      briefId={briefId}
-                      onFilesUploaded={(files) => setPendingFiles(prev => [...prev, ...files])}
-                      pendingFiles={pendingFiles}
-                      onRemoveFile={(idx) => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
-                    />
-                    {dictation.isSupported && (
-                      <button
-                        onClick={dictation.toggle}
-                        disabled={dictation.isProcessing}
-                        className={`p-2 rounded-lg transition-colors ${dictation.isProcessing ? "text-primary bg-primary/10 animate-pulse" : dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
-                        title={dictation.isProcessing ? "Procesando..." : dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
-                      >
-                        {dictation.isListening ? <MicOff size={16} /> : <Mic size={16} />}
-                      </button>
-                    )}
+          <div className="max-w-3xl mx-auto">
+            <div className="relative rounded-2xl bg-card/80 backdrop-blur-xl ring-1 ring-white/[0.08] shadow-[0_-4px_30px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)]">
+              <TextareaAutosize
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  setTimeout(() => {
+                    inputRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+                  }, 300);
+                }}
+                placeholder={dictation.isProcessing ? "✨ Procesando transcripción..." : dictation.isListening ? "🎙️ Escuchando..." : "Escribe tu respuesta..."}
+                maxRows={4}
+                className="w-full resize-none bg-transparent px-5 pt-4 pb-12 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[60px]"
+              />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <FileUploadButton
+                    briefId={briefId}
+                    onFilesUploaded={(files) => setPendingFiles(prev => [...prev, ...files])}
+                    pendingFiles={pendingFiles}
+                    onRemoveFile={(idx) => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                  />
+                  {dictation.isSupported && (
                     <button
-                      onClick={handlePaste}
-                      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                      title="Pegar desde portapapeles"
+                      onClick={dictation.toggle}
+                      disabled={dictation.isProcessing}
+                      className={`p-2 rounded-lg transition-colors ${dictation.isProcessing ? "text-primary bg-primary/10 animate-pulse" : dictation.isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                      title={dictation.isProcessing ? "Procesando..." : dictation.isListening ? "Detener dictado" : "Dictar con micrófono"}
                     >
-                      <ClipboardPaste size={16} />
+                      {dictation.isListening ? <MicOff size={16} /> : <Mic size={16} />}
                     </button>
-                  </div>
+                  )}
                   <button
-                    onClick={() => sendMessage(input)}
-                    disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:brightness-110 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 ${primaryColor ? "text-white" : "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(20,136,252,0.3)]"}`}
-                    style={primaryColor ? buttonStyle : undefined}
+                    onClick={handlePaste}
+                    className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                    title="Pegar desde portapapeles"
                   >
-                    <span className="hidden sm:inline">Enviar</span>
-                    <SendHorizontal size={16} />
+                    <ClipboardPaste size={16} />
                   </button>
                 </div>
+                <button
+                  onClick={() => sendMessage(input)}
+                  disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:brightness-110 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 ${primaryColor ? "text-white" : "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(20,136,252,0.3)]"}`}
+                  style={primaryColor ? buttonStyle : undefined}
+                >
+                  <span className="hidden sm:inline">Enviar</span>
+                  <SendHorizontal size={16} />
+                </button>
               </div>
             </div>
           </div>
-        </footer>
+        </div>
       )}
       </div>
     </div>
