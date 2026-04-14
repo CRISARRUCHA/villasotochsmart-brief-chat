@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { CreateProjectChat } from "@/components/dashboard/CreateProjectChat";
 import { EditProjectModal } from "@/components/dashboard/EditProjectModal";
+import { GradientCard } from "@/components/ui/gradient-card";
 
 interface Brief {
   id: string;
