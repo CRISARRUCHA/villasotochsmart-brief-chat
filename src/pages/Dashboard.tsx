@@ -456,8 +456,6 @@ const Dashboard = () => {
         key={project.id}
         glowColor={color}
       >
-        {/* Color accent bar */}
-        <div className="h-1 w-full" style={{ background: color }} />
 
         <div className="p-4 sm:p-5 group">
           <div className="flex items-start justify-between gap-3">
