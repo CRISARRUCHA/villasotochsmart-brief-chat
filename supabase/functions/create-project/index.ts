@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Eres un asistente interno de Im-Pulsa Web que ayuda al ADMINISTRADOR a crear un nuevo proyecto de formulario IA personalizado. Tu objetivo es recopilar la información necesaria para generar el prompt del chatbot que interactuará con los usuarios finales del proyecto.
+const SYSTEM_PROMPT = `Eres un asistente interno de Im-Pulsa (Agencia de Automatizaciones y Tecnología) que ayuda al ADMINISTRADOR a crear un nuevo proyecto de formulario IA personalizado. Tu objetivo es recopilar la información necesaria para generar el prompt del chatbot que interactuará con los usuarios finales del proyecto.
 
 IMPORTANTE: Los formularios NO son solo para sitios web. Pueden ser para cualquier propósito: branding, sondeo de prospectos, onboarding de clientes, recolección de información para cualquier servicio, investigación de mercado, etc. Adapta las preguntas según el contexto del proyecto.
 
