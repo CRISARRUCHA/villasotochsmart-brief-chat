@@ -569,7 +569,7 @@ export default function ProjectBriefsViewer() {
       <footer className="border-t border-border mt-16">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Generado con Brief IA · Im-Pulsa Web</span>
+            <span>Powered by Im-Pulsa · Agencia de Automatizaciones y Tecnología</span>
             <span>{new Date().getFullYear()}</span>
           </div>
         </div>

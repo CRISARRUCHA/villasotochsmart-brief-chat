@@ -42,7 +42,7 @@ export const ChatHeader = ({ phase, progress, singlePhase, primaryColor }: ChatH
             <img src="/lovable-uploads/icono-blanco.png" alt="Im-Pulsa Web" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-foreground">Im-Pulsa Web</h1>
+            <h1 className="text-sm font-semibold text-foreground">Im-Pulsa</h1>
             <p className="text-xs text-muted-foreground">{config.subtitle}</p>
           </div>
         </div>
