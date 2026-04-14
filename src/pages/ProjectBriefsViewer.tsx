@@ -290,15 +290,19 @@ export default function ProjectBriefsViewer() {
               key={idx} 
               className={`flex ${isUser ? "justify-end" : "justify-start"}`}
             >
-              <div className="max-w-[85%] p-3 rounded-2xl text-sm ${
-                  isUser 
-                    ? "bg-primary text-primary-foreground rounded-br-sm" 
-                    : "bg-secondary text-secondary-foreground rounded-bl-sm"
-                }">
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+              {isUser ? (
+                <div className="max-w-[85%] p-3 rounded-2xl text-sm bg-primary text-primary-foreground rounded-br-sm">
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="max-w-[85%] p-3 rounded-2xl text-sm bg-secondary text-secondary-foreground rounded-bl-sm">
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
