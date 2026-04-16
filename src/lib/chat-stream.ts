@@ -85,6 +85,54 @@ export async function streamChat({ messages, phase, briefData, project, onDelta,
   onDone();
 }
 
+// Extract a balanced JSON object starting at a given index
+function extractBalancedJson(content: string, startIdx: number): string | null {
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = startIdx; i < content.length; i++) {
+    const ch = content[i];
+    if (escape) { escape = false; continue; }
+    if (ch === "\\") { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return content.slice(startIdx, i + 1);
+    }
+  }
+  return null;
+}
+
+// Find a JSON object containing a specific key, tolerant to whitespace/code fences
+function findJsonByKey(content: string, key: string): { raw: string; parsed: any } | null {
+  // Locate "key" pattern, then walk backwards to the opening {
+  const keyRegex = new RegExp(`"${key}"\\s*:`, "g");
+  let match: RegExpExecArray | null;
+  while ((match = keyRegex.exec(content)) !== null) {
+    // Walk back to find the opening brace of the enclosing object
+    let braceIdx = -1;
+    let depth = 0;
+    for (let i = match.index - 1; i >= 0; i--) {
+      const ch = content[i];
+      if (ch === "}") depth++;
+      else if (ch === "{") {
+        if (depth === 0) { braceIdx = i; break; }
+        depth--;
+      }
+    }
+    if (braceIdx === -1) continue;
+    const raw = extractBalancedJson(content, braceIdx);
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      return { raw, parsed };
+    } catch { /* try next */ }
+  }
+  return null;
+}
+
 // Parse action JSON from AI response
 export function parseAIResponse(content: string): {
   text: string;
@@ -95,24 +143,21 @@ export function parseAIResponse(content: string): {
   let action: { action: string; data: Record<string, any> } | undefined;
   let suggestions: string[] | undefined;
 
-  // Check for action JSON (generate_brief or generate_full_brief)
-  const actionMatch = content.match(/\{"action"\s*:\s*"generate_(full_)?brief".*\}/s);
-  if (actionMatch) {
-    try {
-      action = JSON.parse(actionMatch[0]);
-      text = content.replace(actionMatch[0], "").trim();
-    } catch { /* ignore */ }
+  // Strip code fences to make detection easier (but keep original for replacement)
+  const actionFound = findJsonByKey(content, "action");
+  if (actionFound && typeof actionFound.parsed?.action === "string" && /^generate_(full_)?brief$/.test(actionFound.parsed.action)) {
+    action = actionFound.parsed;
+    text = text.replace(actionFound.raw, "").trim();
   }
 
-  // Check for suggestions JSON
-  const suggestionsMatch = content.match(/\{"suggestions"\s*:\s*\[.*?\]\}/s);
-  if (suggestionsMatch) {
-    try {
-      const parsed = JSON.parse(suggestionsMatch[0]);
-      suggestions = parsed.suggestions;
-      text = text.replace(suggestionsMatch[0], "").trim();
-    } catch { /* ignore */ }
+  const suggestionsFound = findJsonByKey(text, "suggestions");
+  if (suggestionsFound && Array.isArray(suggestionsFound.parsed?.suggestions)) {
+    suggestions = suggestionsFound.parsed.suggestions;
+    text = text.replace(suggestionsFound.raw, "").trim();
   }
+
+  // Clean leftover code fences
+  text = text.replace(/```json\s*```/g, "").replace(/```\s*```/g, "").trim();
 
   return { text, action, suggestions };
 }
