@@ -251,7 +251,12 @@ export const ChatInterface = ({ project = "general", initialMessageOverride, sin
           assistantContent += chunk;
           setMessages(prev => {
             const last = prev[prev.length - 1];
-            const displayContent = assistantContent.replace(/\{"suggestions".*$/s, "").replace(/\{"action".*$/s, "").trim();
+            const displayContent = assistantContent
+              .replace(/```json[\s\S]*$/i, "")
+              .replace(/```[\s\S]*$/i, "")
+              .replace(/\{\s*"suggestions"[\s\S]*$/, "")
+              .replace(/\{\s*"action"[\s\S]*$/, "")
+              .trim();
             if (last?.role === "assistant" && prev.indexOf(last) === prev.length - 1 && !last.briefData) {
               return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: displayContent } : m);
             }
