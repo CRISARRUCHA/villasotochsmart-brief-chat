@@ -1,0 +1,7 @@
+UPDATE public.briefs
+SET 
+  phase = 'done',
+  client_name = 'Verónica Meza Chávez',
+  brief_data = '{"nombre_interlocutor":"Verónica Meza Chávez","cargo":"Coordino el programa Haciendo Barrio en Villas Otoch Paraíso","organizacion_interlocutor":"Mesa Ciudadana de Seguridad y Justicia de Quintana Roo","nombre_proyecto":"Barrio Paraiso 259","objetivos_proyecto":["Garantizar la seguridad de las y los vecinos, y visitantes","Generar el desarrollo de Base Comunitaria bajo los ejes económico, educativo, cultural, sostenible y sustentable","Generar una identidad multicultural y vibrante como atractivo turístico basado en las historias de transformación de las personas"],"mision_proyecto":"transformar una zona que tuvo alta incidencia delictiva en una comunidad resiliente, organizada y consciente de redirigir la historia a través de la construcción de paz.","vision_proyecto":"Una comunidad organizada con capacidades desarrollas para generar una economía legal que ofrece un centro turístico seguro para sus habitantes y sus visitantes, con valores comunitarios basados en la confianza, el respeto, la honradez y la honestidad.","sitio_web_necesario":"Sí","justificacion_sitio_web":"Para visibilizar las acciones del trabajo comunitario y mostrar a otras comunidades que cuando se suman las voluntades se pueden hacer grandes logros."}'::jsonb,
+  updated_at = now()
+WHERE id = '5ff2c073-4354-42ca-95cf-e7fef133b789';
