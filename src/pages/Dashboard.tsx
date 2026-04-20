@@ -5,8 +5,9 @@ import {
   LogOut, Trash2, MessageSquare, FileText, ChevronDown, ChevronUp,
   Paperclip, Download, Image as ImageIcon, FileIcon, Plus, FolderOpen,
   ExternalLink, Copy, Pencil, LayoutGrid, List, Inbox, Hash, CopyPlus,
-  Share2
+  Share2, FileDown, FileSpreadsheet
 } from "lucide-react";
+import { exportProjectBriefsPDF, exportProjectBriefsExcel } from "@/lib/export-briefs";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
