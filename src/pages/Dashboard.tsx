@@ -492,6 +492,28 @@ const Dashboard = () => {
               <button onClick={() => duplicateProject(project)} className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Duplicar">
                 <CopyPlus size={13} />
               </button>
+              <button
+                onClick={() => {
+                  if (projectBriefs.length === 0) { toast.error("Este proyecto no tiene briefs aún"); return; }
+                  exportProjectBriefsPDF({ name: project.name, slug: project.slug }, projectBriefs as any);
+                  toast.success("PDF exportado");
+                }}
+                className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary"
+                title="Exportar PDF"
+              >
+                <FileDown size={13} />
+              </button>
+              <button
+                onClick={() => {
+                  if (projectBriefs.length === 0) { toast.error("Este proyecto no tiene briefs aún"); return; }
+                  exportProjectBriefsExcel({ name: project.name, slug: project.slug }, projectBriefs as any);
+                  toast.success("Excel exportado");
+                }}
+                className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary"
+                title="Exportar Excel"
+              >
+                <FileSpreadsheet size={13} />
+              </button>
               <a href={`/p/${project.slug}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary" title="Abrir landing">
                 <ExternalLink size={13} />
               </a>
