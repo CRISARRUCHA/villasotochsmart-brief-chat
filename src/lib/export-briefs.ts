@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import logoWhite from "@/assets/logo-white.png";
 
 interface Brief {
   id: string;
@@ -90,7 +91,24 @@ const getDisplayName = (b: Brief): string =>
   "Sin nombre";
 
 // ---------- PDF ----------
-export function exportProjectBriefsPDF(project: ProjectInfo, briefs: Brief[]) {
+const loadImageAsDataUrl = (src: string): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(new Error("No canvas context"));
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+
+export async function exportProjectBriefsPDF(project: ProjectInfo, briefs: Brief[]) {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -100,21 +118,32 @@ export function exportProjectBriefsPDF(project: ProjectInfo, briefs: Brief[]) {
   // Cover page
   doc.setFillColor(15, 15, 15);
   doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+  // Logo (centered, top portion)
+  try {
+    const logoData = await loadImageAsDataUrl(logoWhite);
+    const logoSize = 90;
+    doc.addImage(logoData, "PNG", (pageWidth - logoSize) / 2, 110, logoSize, logoSize);
+  } catch {
+    // ignore logo errors, continue without it
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
-  doc.text(project.name, margin, 180, { maxWidth: contentWidth });
+  doc.text(project.name, margin, 260, { maxWidth: contentWidth });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
   doc.setTextColor(180, 180, 180);
-  doc.text(`Exportación de respuestas — ${briefs.length} participante${briefs.length !== 1 ? "s" : ""}`, margin, 215);
+  doc.text(`Exportación de respuestas — ${briefs.length} participante${briefs.length !== 1 ? "s" : ""}`, margin, 295);
   doc.setFontSize(10);
   doc.setTextColor(140, 140, 140);
-  doc.text(formatDate(new Date().toISOString()), margin, 235);
+  doc.text(formatDate(new Date().toISOString()), margin, 315);
 
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
   doc.text("Im-Pulsa · Agencia de Automatizaciones y Tecnología", margin, pageHeight - margin);
+
 
   // Briefs
   briefs.forEach((brief, idx) => {
