@@ -119,11 +119,11 @@ export async function exportProjectBriefsPDF(project: ProjectInfo, briefs: Brief
   doc.setFillColor(15, 15, 15);
   doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-  // Logo (centered, top portion)
+  // Logo (left-aligned, top portion)
   try {
     const logoData = await loadImageAsDataUrl(logoWhite);
-    const logoSize = 90;
-    doc.addImage(logoData, "PNG", (pageWidth - logoSize) / 2, 110, logoSize, logoSize);
+    const logoSize = 130;
+    doc.addImage(logoData, "PNG", margin, 100, logoSize, logoSize);
   } catch {
     // ignore logo errors, continue without it
   }
