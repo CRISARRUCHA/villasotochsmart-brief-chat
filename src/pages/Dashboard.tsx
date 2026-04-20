@@ -493,9 +493,9 @@ const Dashboard = () => {
                 <CopyPlus size={13} />
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (projectBriefs.length === 0) { toast.error("Este proyecto no tiene briefs aún"); return; }
-                  exportProjectBriefsPDF({ name: project.name, slug: project.slug }, projectBriefs as any);
+                  await exportProjectBriefsPDF({ name: project.name, slug: project.slug }, projectBriefs as any);
                   toast.success("PDF exportado");
                 }}
                 className="p-1.5 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-secondary"
