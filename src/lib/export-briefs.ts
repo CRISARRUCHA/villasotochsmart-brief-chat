@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import logoWhite from "@/assets/logo-white.png";
 
 interface Brief {
   id: string;
